@@ -86,9 +86,9 @@ export default function FaqPage() {
             <span>Mountain Springs<br />Cleaning</span>
           </Link>
           <ul className="nav-links">
-            <li><Link href="/">About</Link></li>
-            <li><Link href="/#services">Services</Link></li>
-            <li><a href="#">Pricing</a></li>
+            <li><Link href="/about">About</Link></li>
+            <li><Link href="/services">Services</Link></li>
+            <li><Link href="/pricing">Pricing</Link></li>
             <li><Link href="/faq" className="active">FAQs</Link></li>
           </ul>
           <a href="/#book" className="nav-cta">Book Now →</a>

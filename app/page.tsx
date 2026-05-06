@@ -18,6 +18,9 @@ const StarSvg = () => (
 );
 
 export default function Home() {
+  // Mobile menu state
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   // Fade-in observer
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -30,6 +33,26 @@ export default function Home() {
     );
     document.querySelectorAll(".fade-in").forEach((el) => observer.observe(el));
     return () => observer.disconnect();
+  }, []);
+
+  // Close menu on resize or outside click
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) setMobileMenuOpen(false);
+    };
+    const handleClickOutside = (e: MouseEvent) => {
+      const nav = document.querySelector("nav");
+      const menu = document.querySelector(".mobile-menu");
+      if (nav && !nav.contains(e.target as Node) && menu && !menu.contains(e.target as Node)) {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      document.removeEventListener("click", handleClickOutside);
+    };
   }, []);
 
   // Booking state
@@ -131,34 +154,53 @@ export default function Home() {
             <span>Mountain Springs<br />Cleaning</span>
           </Link>
           <ul className="nav-links">
-            <li><a href="#">About</a></li>
-            <li><a href="#services">Services</a></li>
-            <li><a href="#">Pricing</a></li>
+            <li><Link href="/about">About</Link></li>
+            <li><Link href="/services">Services</Link></li>
+            <li><Link href="/pricing">Pricing</Link></li>
             <li><Link href="/faq">FAQs</Link></li>
           </ul>
           <a href="#book" className="nav-cta">Book Now →</a>
+          <button
+            className={`nav-hamburger${mobileMenuOpen ? " open" : ""}`}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+            type="button"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
         </div>
       </nav>
 
+      {/* MOBILE MENU */}
+      {mobileMenuOpen && (
+        <div className="mobile-menu">
+          <Link href="/about" onClick={() => setMobileMenuOpen(false)}>About</Link>
+          <Link href="/services" onClick={() => setMobileMenuOpen(false)}>Services</Link>
+          <Link href="/pricing" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
+          <Link href="/faq" onClick={() => setMobileMenuOpen(false)}>FAQs</Link>
+          <a href="#book" onClick={() => setMobileMenuOpen(false)} className="mobile-menu-cta">Book Now</a>
+        </div>
+      )}
+
       {/* HERO */}
       <section className="hero">
+        <Image src="/images/hero-bg.jpg" alt="Clean modern home" fill style={{ objectFit: "cover", objectPosition: "center" }} priority />
         <div className="hero-bg" />
-        <div style={{ animation: "spin-slow 20s linear infinite" }} className="hero-seal">
-          <Image src="/logo.png" alt="Seal" width={80} height={80} style={{ objectFit: "contain" }} />
-        </div>
         <div className="hero-content">
           <div className="hero-badge">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: 12, height: 12 }}>
-              <path d="M5 3l14 9-14 9V3z" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: 13, height: 13 }}>
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Trusted in Your Neighborhood
+            Trusted by Thousands
           </div>
           <h1 className="hero-title">
-            Spotless homes,<br />
-            <span>happy families.</span>
+            Your home,<br />
+            <span>spotlessly clean.</span>
           </h1>
           <p className="hero-sub">
-            Professional cleaning you can count on — background-checked, insured, and satisfaction guaranteed.
+            Professional cleaning from vetted, background-checked teams. Fully insured. 100% satisfaction guaranteed.
           </p>
           <div className="hero-actions">
             <a href="#book" className="btn-primary">Get a Free Quote</a>
@@ -218,26 +260,14 @@ export default function Home() {
       <section className="section-split" id="services">
         <div className="round-stack-container fade-in">
           <div className="round-stack">
-            <div className="rs-circle rs-c1" style={{ background: "linear-gradient(135deg,#dbeafe,#93c5fd)" }}>
-              <div className="photo-placeholder">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#1565F2" strokeWidth={1}>
-                  <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-              </div>
+            <div className="rs-circle rs-c1">
+              <Image src="/images/standard-kitchen.jpg" alt="Clean kitchen" fill style={{ objectFit: "cover" }} />
             </div>
-            <div className="rs-circle rs-c2" style={{ background: "linear-gradient(135deg,#ede9fe,#c4b5fd)" }}>
-              <div className="photo-placeholder">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth={1}>
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
+            <div className="rs-circle rs-c2">
+              <Image src="/images/living-room.jpg" alt="Clean living room" fill style={{ objectFit: "cover" }} />
             </div>
-            <div className="rs-circle rs-c3" style={{ background: "linear-gradient(135deg,#d1fae5,#6ee7b7)" }}>
-              <div className="photo-placeholder">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth={1}>
-                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
+            <div className="rs-circle rs-c3">
+              <Image src="/images/standard-bathroom.jpg" alt="Clean bathroom" fill style={{ objectFit: "cover" }} />
             </div>
           </div>
         </div>
@@ -269,20 +299,14 @@ export default function Home() {
         </div>
         <div className="round-stack-container fade-in" style={{ background: "#1A1F36" }}>
           <div className="round-stack">
-            <div className="rs-circle rs-c1" style={{ background: "linear-gradient(135deg,#1e3a5f,#1565F2)", borderColor: "rgba(255,255,255,0.15)" }}>
-              <div className="photo-placeholder">
-                <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth={1}><path d="M4 4h16v16H4z" /></svg>
-              </div>
+            <div className="rs-circle rs-c1" style={{ borderColor: "rgba(255,255,255,0.15)" }}>
+              <Image src="/images/home-cleaning.jpg" alt="Professional home cleaning" fill style={{ objectFit: "cover" }} />
             </div>
-            <div className="rs-circle rs-c2" style={{ background: "linear-gradient(135deg,#0F4EC4,#0a1628)", borderColor: "rgba(255,255,255,0.15)" }}>
-              <div className="photo-placeholder">
-                <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth={1}><path d="M5 3l14 9-14 9V3z" /></svg>
-              </div>
+            <div className="rs-circle rs-c2" style={{ borderColor: "rgba(255,255,255,0.15)" }}>
+              <Image src="/images/deep-clean-supplies.jpg" alt="Cleaning supplies" fill style={{ objectFit: "cover" }} />
             </div>
-            <div className="rs-circle rs-c3" style={{ background: "linear-gradient(135deg,#2563EB,#1d4ed8)", borderColor: "rgba(255,255,255,0.15)" }}>
-              <div className="photo-placeholder">
-                <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth={1}><path d="M9 12l2 2 4-4" /></svg>
-              </div>
+            <div className="rs-circle rs-c3" style={{ borderColor: "rgba(255,255,255,0.15)" }}>
+              <Image src="/images/standard-bathroom.jpg" alt="Clean bathroom" fill style={{ objectFit: "cover" }} />
             </div>
           </div>
         </div>
@@ -305,25 +329,13 @@ export default function Home() {
           </div>
           <div className="round-stack-wm fade-in">
             <div className="rswm-c1">
-              <div className="photo-placeholder" style={{ background: "linear-gradient(135deg,#dbeafe,#bfdbfe)" }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="#1565F2" strokeWidth={1}>
-                  <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
+              <Image src="/images/recurring-calendar.jpg" alt="Recurring cleaning calendar" fill style={{ objectFit: "cover" }} />
             </div>
-            <div className="rswm-c2" style={{ background: "linear-gradient(135deg,#ede9fe,#c4b5fd)" }}>
-              <div className="photo-placeholder">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth={1}>
-                  <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </div>
+            <div className="rswm-c2">
+              <Image src="/images/living-room.jpg" alt="Clean living room" fill style={{ objectFit: "cover" }} />
             </div>
-            <div className="rswm-c3" style={{ background: "linear-gradient(135deg,#d1fae5,#6ee7b7)" }}>
-              <div className="photo-placeholder">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth={1}>
-                  <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
+            <div className="rswm-c3">
+              <Image src="/images/standard-kitchen.jpg" alt="Clean kitchen" fill style={{ objectFit: "cover" }} />
             </div>
           </div>
         </div>
@@ -368,25 +380,13 @@ export default function Home() {
         <div className="reviews-photo-side">
           <div className="reviews-circle-stack">
             <div className="rv-c1">
-              <div className="photo-placeholder" style={{ background: "linear-gradient(135deg,#1565F2,#0F4EC4)" }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth={1} style={{ width: 56, height: 56 }}>
-                  <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-              </div>
+              <Image src="/images/reviews-family.jpg" alt="Happy family in clean home" fill style={{ objectFit: "cover" }} />
             </div>
             <div className="rv-c2">
-              <div className="photo-placeholder" style={{ background: "linear-gradient(135deg,#0F4EC4,#1A1F36)" }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth={1} style={{ width: 40, height: 40 }}>
-                  <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                </svg>
-              </div>
+              <Image src="/images/living-room.jpg" alt="Clean living room" fill style={{ objectFit: "cover" }} />
             </div>
             <div className="rv-c3">
-              <div className="photo-placeholder" style={{ background: "linear-gradient(135deg,#2563EB,#1A1F36)" }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth={1} style={{ width: 32, height: 32 }}>
-                  <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-              </div>
+              <Image src="/images/standard-kitchen.jpg" alt="Clean kitchen" fill style={{ objectFit: "cover" }} />
             </div>
           </div>
         </div>
@@ -438,7 +438,7 @@ export default function Home() {
               </div>
               <div>
                 <div className="path-title">Book Online</div>
-                <div className="path-sub">Pick what you need, we follow up fast</div>
+                <div className="path-sub">Quick quote in minutes, zero commitment</div>
               </div>
               <div className="path-check">✓</div>
             </button>
@@ -453,8 +453,8 @@ export default function Home() {
                 </svg>
               </div>
               <div>
-                <div className="path-title">Free 10-Min Call</div>
-                <div className="path-sub">Talk to a real person, no commitment</div>
+                <div className="path-title">Schedule a Call</div>
+                <div className="path-sub">Speak with our team, no pressure</div>
               </div>
               <div className="path-check">✓</div>
             </button>
@@ -462,10 +462,10 @@ export default function Home() {
 
           {/* CALL FORM */}
           {activePath === "call" && (
-            <div style={{ background: "#fff", borderRadius: 24, border: "1px solid var(--border)", boxShadow: "0 8px 32px rgba(21,101,242,0.1)", overflow: "hidden" }}>
-              <div style={{ background: "var(--neutral-dark)", padding: "28px 40px" }}>
-                <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", marginBottom: 4 }}>Book a Free Call</div>
-                <div style={{ fontSize: 14, color: "rgba(255,255,255,0.6)" }}>10 minutes. No pressure. We&apos;ll answer your questions and give you a quote on the spot.</div>
+            <div style={{ background: "#fff", borderRadius: 12, border: "1px solid var(--border)", boxShadow: "0 4px 16px rgba(21,101,242,0.08)", overflow: "hidden" }}>
+              <div style={{ background: "var(--blue)", padding: "32px 40px" }}>
+                <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", marginBottom: 6 }}>Schedule a Call</div>
+                <div style={{ fontSize: 14, color: "rgba(255,255,255,0.85)" }}>We&apos;ll discuss your home and answer questions about pricing. No obligation to book.</div>
               </div>
               {callDone ? (
                 <div style={{ padding: "48px 40px", textAlign: "center" }}>
@@ -528,16 +528,26 @@ export default function Home() {
             <form onSubmit={handleBookingSubmit}>
               <div style={{ background: "#fff", borderRadius: 24, border: "1px solid var(--border)", boxShadow: "0 8px 32px rgba(21,101,242,0.1)", overflow: "hidden" }}>
                 {/* Step indicator */}
-                <div style={{ background: "var(--blue)", padding: "28px 40px", display: "flex", alignItems: "center" }}>
-                  {[1, 2, 3].map((n, i) => (
-                    <div key={n} style={{ display: "contents" }}>
-                      <div className={`bk-step${step === n ? " active" : step > n ? " done" : ""}`} data-step={n}>
-                        <div className="bk-step-num">{step > n ? "✓" : n}</div>
-                        <div className="bk-step-label">{["Your Home", "Service Type", "Your Info"][i]}</div>
-                      </div>
-                      {i < 2 && <div className="bk-step-line" />}
+                <div style={{ background: "var(--blue)", padding: "28px 40px" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.95)" }}>
+                      Step {step} of 3 · Takes 3 minutes
                     </div>
-                  ))}
+                    <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.65)" }}>
+                      {step < 3 ? `Next: ${["Service Type", "Your Info"][step - 1]}` : "Review & Submit"}
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    {[1, 2, 3].map((n, i) => (
+                      <div key={n} style={{ display: "contents" }}>
+                        <div className={`bk-step${step === n ? " active" : step > n ? " done" : ""}`} data-step={n}>
+                          <div className="bk-step-num">{step > n ? "✓" : n}</div>
+                          <div className="bk-step-label">{["Your Home", "Service Type", "Your Info"][i]}</div>
+                        </div>
+                        {i < 2 && <div className="bk-step-line" />}
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Step 1 */}
@@ -689,26 +699,25 @@ export default function Home() {
             <div>
               <div className="footer-col-title">Services</div>
               <ul className="footer-links">
-                {["Standard Cleaning", "Deep Cleaning", "Move-In/Out", "Recurring Plans", "Commercial"].map((s) => (
-                  <li key={s}><a href="#">{s}</a></li>
-                ))}
+                <li><Link href="/services/standard-cleaning">Standard Cleaning</Link></li>
+                <li><Link href="/services/deep-cleaning">Deep Cleaning</Link></li>
+                <li><Link href="/services/move-in-move-out">Move-In/Out</Link></li>
+                <li><Link href="/services/recurring-plans">Recurring Plans</Link></li>
+                <li><Link href="/services/airbnb-turnover">Airbnb Turnovers</Link></li>
               </ul>
             </div>
             <div>
               <div className="footer-col-title">Company</div>
               <ul className="footer-links">
-                {["About Us", "Press", "Careers", "Blog"].map((s) => (
-                  <li key={s}><a href="#">{s}</a></li>
-                ))}
+                <li><Link href="/about">About Us</Link></li>
               </ul>
             </div>
             <div>
               <div className="footer-col-title">Help</div>
               <ul className="footer-links">
                 <li><Link href="/faq">FAQs</Link></li>
-                {["Pricing", "Service Area", "Gift Cards"].map((s) => (
-                  <li key={s}><a href="#">{s}</a></li>
-                ))}
+                <li><Link href="/pricing">Pricing</Link></li>
+                <li><Link href="/service-areas">Service Areas</Link></li>
               </ul>
             </div>
             <div>
