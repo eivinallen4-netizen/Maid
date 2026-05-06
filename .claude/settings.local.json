@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:api.anthropic.com)",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\coole\\\\OneDrive\\\\Desktop\\\\medina\\\\Full-Website\" -Force -Recurse | ForEach-Object { $_.FullName })"
+    ]
+  }
+}
