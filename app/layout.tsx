@@ -1,18 +1,35 @@
 import type { Metadata } from "next";
-import { Nunito } from "next/font/google";
+import { Bebas_Neue, Manrope } from "next/font/google";
 import "./globals.css";
 
-const nunito = Nunito({
+const appSans = Manrope({
   subsets: ["latin"],
-  weight: ["400", "600", "700", "800", "900"],
-  variable: "--font-nunito",
   display: "swap",
+  variable: "--font-app-sans",
+});
+
+const appDisplay = Bebas_Neue({
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+  variable: "--font-app-display",
 });
 
 export const metadata: Metadata = {
-  title: "Mountain Springs Cleaning",
+  title: {
+    default: "Professional Cleaning in Las Vegas | Mountain Springs Cleaning",
+    template: "%s | Mountain Springs Cleaning",
+  },
   description:
-    "Professional home cleaning in Las Vegas. Background-checked, insured, and satisfaction guaranteed.",
+    "Professional home cleaning in Las Vegas. Background-checked, insured, and satisfaction guaranteed. Same team every visit.",
+  keywords: [
+    "cleaning service Las Vegas",
+    "house cleaning Las Vegas",
+    "maid service Las Vegas",
+    "deep cleaning Las Vegas",
+    "Airbnb cleaning Las Vegas",
+    "move-out cleaning Las Vegas",
+  ],
 };
 
 export default function RootLayout({
@@ -21,8 +38,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={nunito.variable} style={{ fontFamily: "var(--font-nunito), Nunito, sans-serif" }}>
-      <body style={{ fontFamily: "var(--font-nunito), Nunito, sans-serif" }}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${appSans.variable} ${appDisplay.variable} antialiased`} suppressHydrationWarning>
         {children}
       </body>
     </html>

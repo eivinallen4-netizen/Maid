@@ -1,0 +1,195 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║         QUICK REFERENCE - AUTHENTICATION, QUOTES & PAYMENTS                  ║
+║                    Mountain Springs Cleaning Portal                           ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+🚀 QUICK START
+
+  $ npm run dev
+  
+  Visit: http://localhost:3000/quote-builder
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🔐 LOGIN CREDENTIALS
+
+  Email: theodoreallen677@Gmail.com
+  PIN:   1234
+  
+  Log in at: http://localhost:3000/signin
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🎯 KEY PAGES & URLS
+
+  PUBLIC:
+    /                      Home page
+    /quote-builder         Quote form with pricing
+    /thank-you             Payment success page
+    /signin                Login page
+  
+  PROTECTED (Login required):
+    /admin                 Admin dashboard
+    /account               User profile
+
+═══════════════════════════════════════════════════════════════════════════════
+
+💰 PRICING STRUCTURE
+
+  SERVICE TYPES:
+    Standard Cleaning     $150
+    Deep Cleaning         $225
+    Move Out Cleaning     $275
+  
+  HOME SIZE SURCHARGE (3+ bedrooms):
+    3 bedroom            +$75
+    4 bedroom            +$150
+    5 bedroom            +$225
+  
+  ADD-ONS:
+    Laundry              +$35
+    Windows              +$50
+    Baseboards           +$40
+    Fridge               +$45
+    Move-in Special      +$125
+    Airbnb Turnover      +$100
+  
+  MINIMUM QUOTE: $150
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🧪 TEST STRIPE PAYMENT
+
+  Card Number:  4242 4242 4242 4242
+  Expiry:       12/34 (any future date)
+  CVC:          123 (any 3 digits)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📊 WORKFLOW
+
+  CUSTOMER PATH:
+  
+  /quote-builder → Fill form → Select services & add-ons
+    ↓
+    ├─ Click "Get Quote" → Quote created (no payment)
+    │   ↓
+    │   Quote stored in database
+    │   Admin notified
+    │
+    └─ Click "Pay Now" → Stripe checkout
+        ↓
+        Enter card details
+        ↓
+        Payment processed
+        ↓
+        /thank-you page (success)
+        ↓
+        Quote auto-created with payment
+
+  ADMIN PATH:
+  
+  /signin → Log in with email + PIN
+    ↓
+    /admin → See quotes & leads
+    ↓
+    Send quotes to customers
+    ↓
+    Manage schedules & payments
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🔌 API ENDPOINTS
+
+  Authentication:
+    POST   /api/auth/login              Login
+    POST   /api/auth/logout             Logout
+    GET    /api/auth/me                 Current user
+  
+  Quotes:
+    GET    /api/quotes                  List quotes (admin)
+    POST   /api/quotes                  Create quote
+    POST   /api/send-quote-email        Send quote email (admin)
+  
+  Payments:
+    POST   /api/stripe/checkout-service Create payment session
+    POST   /api/stripe/verify-payment   Verify payment
+
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ TESTING CHECKLIST
+
+  [ ] Start server:      npm run dev
+  [ ] Visit quotes:      /quote-builder
+  [ ] Fill & submit form
+  [ ] Click "Get Quote"  → Creates quote
+  [ ] Try "Pay Now"      → Test Stripe
+  [ ] Use test card      → 4242 4242 4242 4242
+  [ ] See success        → /thank-you page
+  [ ] Log in to admin    → /admin
+  [ ] View quotes        → See your test quotes
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📁 NEW FILES CREATED
+
+  middleware.ts                    Auth middleware
+  app/quote-builder/page.tsx       Quote form page
+  app/thank-you/page.tsx           Success page
+  app/api/stripe/checkout-service  Stripe checkout
+  app/api/stripe/verify-payment    Verify payment
+  app/api/send-quote-email/        Email quotes
+  lib/useAuth.ts                   Auth hook
+  
+  DOCUMENTATION:
+  IMPLEMENTATION_GUIDE.md          Feature details
+  TESTING_CHECKLIST.md             QA procedures
+  WHAT_WAS_BUILT.md                Complete feature list
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🔧 CONFIGURATION
+
+  Edit pricing in: config/pricing.config.ts
+  
+  Set environment vars in: .env
+    ADMIN_EMAIL=your-email@gmail.com
+    ADMIN_PIN=1234
+    STRIPE_SECRET_KEY=sk_test_...
+    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+
+═══════════════════════════════════════════════════════════════════════════════
+
+❓ QUICK HELP
+
+  Issue                      Solution
+  ─────────────────────────────────────────────────────────────
+  Can't access /admin        Log in first: /signin
+  Quote not saving           Check all form fields filled
+  Stripe payment fails       Use test card 4242 4242 4242 4242
+  Price calculating wrong    Check config/pricing.config.ts
+  Email not sending          Check SMTP vars in .env
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📚 DOCUMENTATION
+
+  Start here:
+    WHAT_WAS_BUILT.md              Overview of all features
+    IMPLEMENTATION_GUIDE.md        How everything works
+  
+  For testing:
+    TESTING_CHECKLIST.md           Complete QA checklist
+  
+  For details:
+    API_REFERENCE.md               Full API documentation
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🚀 YOU'RE READY!
+
+  npm run dev
+  
+  Then visit: http://localhost:3000/quote-builder
+
+═══════════════════════════════════════════════════════════════════════════════
