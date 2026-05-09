@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useAuthGuard } from "@/lib/auth-guard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,6 +21,7 @@ type AccountUser = {
 };
 
 export default function AccountForm() {
+  const { loading: authGuardLoading } = useAuthGuard();
   const [user, setUser] = useState<AccountUser | null>(null);
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -93,8 +95,8 @@ export default function AccountForm() {
     }
   }
 
-  if (loading) {
-    return <p className="text-sm text-muted-foreground">Loading account...</p>;
+  if (authGuardLoading || loading) {
+    return <p className="text-sm text-muted-foreground">Loading...</p>;
   }
 
   if (!user) {

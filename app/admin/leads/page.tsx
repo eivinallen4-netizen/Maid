@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useAuthGuard } from "@/lib/auth-guard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ import { getContactDisplayName, getContactPaneTotal } from "@/lib/contact-lead-h
 const PER_PAGE = 12;
 
 export default function AdminLeadsPage() {
+  const { loading: authGuardLoading } = useAuthGuard(["admin"]);
   const [authLoading, setAuthLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [contacts, setContacts] = useState<ContactRecord[]>([]);
@@ -89,24 +91,11 @@ export default function AdminLeadsPage() {
     setPage((p) => Math.min(p, totalPages));
   }, [totalPages]);
 
-  if (authLoading) {
+  if (authGuardLoading || authLoading) {
     return (
       <div className="min-h-screen bg-slate-50">
         <div className="mx-auto max-w-5xl px-4 py-10">
-          <p className="text-sm text-slate-600">Checking access…</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-slate-50">
-        <div className="mx-auto max-w-lg px-4 py-10">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h1 className="text-lg font-semibold text-slate-900">Admin only</h1>
-            <p className="mt-2 text-sm text-slate-600">Sign in as an admin to view leads.</p>
-          </div>
+          <p className="text-sm text-slate-600">Loading…</p>
         </div>
       </div>
     );

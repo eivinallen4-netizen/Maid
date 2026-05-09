@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAuthGuard } from "@/lib/auth-guard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 type Contact = {
@@ -31,6 +32,7 @@ type SessionUser = {
 };
 
 export default function StatsPage() {
+  const { loading: authGuardLoading } = useAuthGuard();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [user, setUser] = useState<SessionUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -58,10 +60,10 @@ export default function StatsPage() {
     fetchData();
   }, []);
 
-  if (loading) {
+  if (authGuardLoading || loading) {
     return (
       <div className="px-4 py-10">
-        <p className="text-sm text-muted-foreground">Loading stats...</p>
+        <p className="text-sm text-muted-foreground">Loading...</p>
       </div>
     );
   }

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useAuthGuard } from "@/lib/auth-guard";
 import {
   AlignJustify,
   BadgeDollarSign,
@@ -188,6 +189,7 @@ type TransactionRecord = {
 
 export default function AdminPage() {
   const pathname = usePathname();
+  const { loading: authGuardLoading } = useAuthGuard(["admin"]);
   const [authLoading, setAuthLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [pricing, setPricing] = useState<Pricing>(defaultPricing);
@@ -1251,23 +1253,10 @@ export default function AdminPage() {
     { id: "danger", label: "Reset DB", icon: Trash2, section: "danger" as const },
   ] as const;
 
-  if (authLoading) {
+  if (authGuardLoading || authLoading) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-10">
-        <p className="text-sm text-muted-foreground">Checking admin access...</p>
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="mx-auto max-w-3xl px-4 py-10">
-        <div className="rounded-2xl border border-border bg-card p-6">
-          <h1 className="text-xl font-semibold">Admin access required</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            This page only works for admin sessions. Sign in with an admin account to load jobs, users, and admin tools.
-          </p>
-        </div>
+        <p className="text-sm text-muted-foreground">Loading...</p>
       </div>
     );
   }
