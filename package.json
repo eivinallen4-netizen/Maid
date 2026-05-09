@@ -22,7 +22,7 @@
     "@radix-ui/react-slot": "^1",
     "class-variance-authority": "^0.7",
     "clsx": "^2",
-    "lucide-react": "^0.394",
+    "lucide-react": "^0.425",
     "next": "16.2.4",
     "nodemailer": "^6",
     "qrcode": "^1.5.4",
