@@ -6,15 +6,36 @@ export type ServicePrices = Record<HomeSize, number>;
 export type Pricing = {
   services: Record<ServiceType, { label: string; prices: ServicePrices }>;
   addons: {
+    refrigerator: number;
     oven: number;
-    fridge: number;
     laundry: number;
-    interior_windows: number;
-    garage: number;
-    patio: number;
+    dishes: number;
+    green_products: number;
+    organizing: number;
+    windows: number;
+    blinds: number;
+    heavy_duty: number;
+    cabinets: number;
+    walls: number;
+    deep_clean_floors: number;
+    balcony: number;
+    garage_sweep: number;
+    // Window cleaning addons (for admin quotes)
+    screen?: number;
+    track?: number;
+    hard_water?: number;
+    interior?: number;
   };
+  // Window cleaning pricing (for admin quotes)
+  paneTypes?: Record<PaneType, number>;
+  storySurcharge?: { third_plus: number };
   jobMinimum: number;
+  anchorMultiplier: number;
 };
+
+// Window cleaning service types (for admin-core compatibility)
+export type PaneType = "standard" | "specialty" | "french";
+export type StoryLevel = "1-2" | "3+";
 
 export const defaultPricing: Pricing = {
   services: {
@@ -36,12 +57,34 @@ export const defaultPricing: Pricing = {
     },
   },
   addons: {
+    refrigerator: 30,
     oven: 35,
-    fridge: 25,
-    laundry: 15,
-    interior_windows: 50,
-    garage: 45,
-    patio: 35,
+    laundry: 20,
+    dishes: 25,
+    green_products: 15,
+    organizing: 45,
+    windows: 50,
+    blinds: 25,
+    heavy_duty: 75,
+    cabinets: 40,
+    walls: 45,
+    deep_clean_floors: 50,
+    balcony: 35,
+    garage_sweep: 40,
+    // Window cleaning addons
+    screen: 15,
+    track: 20,
+    hard_water: 25,
+    interior: 30,
+  },
+  paneTypes: {
+    standard: 8,
+    specialty: 12,
+    french: 10,
+  },
+  storySurcharge: {
+    third_plus: 5,
   },
   jobMinimum: 79,
+  anchorMultiplier: 1.3,
 };

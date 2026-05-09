@@ -69,8 +69,15 @@ export async function POST(request: Request) {
       });
     } else if (body.selections.serviceType || body.selections.homeSize) {
       // Service-based quote (cleaning services)
-      // For now, just store the selections and use provided totals
-      const totals = body.totals || { total: 0 };
+      const total = body.totals?.total ?? 0;
+      const totals = {
+        base: total,
+        storySurcharge: 0,
+        addonsTotal: 0,
+        subtotal: total,
+        total,
+        minimumApplied: false,
+      };
 
       await createQuote({
         id: globalThis.crypto?.randomUUID?.() ?? `quote_${Date.now()}`,

@@ -11,7 +11,7 @@ export async function getStorageUrl(key: string): Promise<string> {
   return key;
 }
 
-export async function deleteStoredObject(key: string): Promise<void> {
+export async function deleteStoredObject(key?: string): Promise<void> {
   // noop
 }
 
@@ -19,6 +19,6 @@ export async function uploadPhotoFileToStorage(file: File, path: string): Promis
   return path;
 }
 
-export function toPublicObjectUrl(path: string): string {
+export function toPublicObjectUrl(path?: string): string | undefined {
   return path;
 }

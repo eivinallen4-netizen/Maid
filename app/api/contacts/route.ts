@@ -72,12 +72,22 @@ async function createBrevoContact(payload: ContactPayload) {
 export async function GET(request: Request) {
   try {
     const session = await getSessionFromRequest(request);
-    if (!session || session.role !== "admin") {
+    if (!session || (session.role !== "admin" && session.role !== "rep")) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     }
 
     const contacts = await readContacts();
-    return NextResponse.json({ contacts });
+
+    // If rep, filter to only their contacts
+    if (session.role === "rep") {
+      const filteredContacts = contacts.filter(
+        (contact) => contact.rep_email === session.email
+      );
+      return NextResponse.json(filteredContacts);
+    }
+
+    // Admin sees all
+    return NextResponse.json(contacts);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Unable to load contacts." }, { status: 500 });
@@ -96,6 +106,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Email must be valid." }, { status: 400 });
     }
 
+    // Try to get session (optional - for rep tracking)
+    const session = await getSessionFromRequest(request);
+
     const brevo = body.email ? await createBrevoContact(body) : undefined;
     const record: ContactRecord = {
       id: globalThis.crypto?.randomUUID?.() ?? `contact_${Date.now()}`,
@@ -111,6 +124,7 @@ export async function POST(request: Request) {
       homeType: body.homeType?.trim() || undefined,
       notes: body.notes?.trim() || undefined,
       source: body.source?.trim() || undefined,
+      rep_email: session?.email, // Attach rep email if authenticated
       created_at: new Date().toISOString(),
       brevo: { id: brevo?.id },
     };

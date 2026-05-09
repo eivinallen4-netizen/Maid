@@ -87,7 +87,7 @@ async function ensureSchema() {
 
         await db.batch(
           [
-            { sql: "ALTER TABLE users RENAME TO users_legacy" },
+            { sql: "ALTER TABLE users RENAME TO users_legacy", args: [] },
             {
               sql: `
                 CREATE TABLE users (
@@ -97,6 +97,7 @@ async function ensureSchema() {
                   data TEXT NOT NULL
                 )
               `,
+              args: [],
             },
           ],
           "write"
@@ -150,7 +151,8 @@ export async function tursoExecute(
   }
 
   await ensureSchema();
-  return getClient().execute(input);
+  const stmt = typeof input === "string" ? input : { ...input, args: input.args ?? [] };
+  return getClient().execute(stmt);
 }
 
 export async function tursoBatch(
@@ -161,5 +163,6 @@ export async function tursoBatch(
   }
 
   await ensureSchema();
-  return getClient().batch(statements, "write");
+  const normalized = statements.map((stmt) => ({ ...stmt, args: stmt.args ?? [] }));
+  return getClient().batch(normalized, "write");
 }

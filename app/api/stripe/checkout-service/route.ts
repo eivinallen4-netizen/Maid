@@ -53,10 +53,8 @@ export async function POST(request: Request) {
   }
 
   try {
+    // Auth is optional - allows both authenticated reps and public customers
     const authSession = await getSessionFromRequest(request);
-    if (!authSession) {
-      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
-    }
 
     const body = (await request.json()) as {
       user?: {
@@ -133,12 +131,12 @@ export async function POST(request: Request) {
     lineItems.push({
       price_data: {
         currency: "usd",
+        unit_amount: Math.round(total * 100),
         product_data: {
           name: `${serviceTypeLabel} Cleaning - ${body.selections.homeSize.toUpperCase()}`,
           description: `Service Date: ${body.serviceDate || "To be scheduled"}`,
         },
       },
-      unit_amount: Math.round(total * 100),
       quantity: 1,
     });
 
@@ -147,13 +145,23 @@ export async function POST(request: Request) {
       mode: "payment",
       line_items: lineItems,
       success_url: `${siteUrl}/thank-you?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteUrl}/quote-builder`,
+      cancel_url: `${siteUrl}/`,
+      metadata: {
+        customer_name: body.user.name,
+        customer_email: body.user.email,
+        customer_address: body.user.address || "",
+        serviceType: body.selections.serviceType,
+        homeSize: body.selections.homeSize,
+        service_date: body.serviceDate || "",
+        service_time: body.serviceTime || "",
+        ...(authSession && { rep_email: authSession.email, rep_name: authSession.name || authSession.email }),
+      },
       payment_intent_data: {
         metadata: {
           serviceType: body.selections.serviceType,
           homeSize: body.selections.homeSize,
-          serviceDate: body.serviceDate || "",
-          serviceTime: body.serviceTime || "",
+          service_date: body.serviceDate || "",
+          service_time: body.serviceTime || "",
         },
       },
     });
@@ -168,12 +176,21 @@ export async function POST(request: Request) {
           phone: body.user.phone,
           address: body.user.address,
         },
-        rep: {
-          name: authSession.name ?? authSession.email,
-          email: authSession.email,
-        },
+        rep: authSession
+          ? {
+              name: authSession.name ?? authSession.email,
+              email: authSession.email,
+            }
+          : undefined,
         selections: body.selections as any,
-        totals: { total },
+        totals: {
+          base: total,
+          storySurcharge: 0,
+          addonsTotal: 0,
+          subtotal: total,
+          total,
+          minimumApplied: false,
+        },
         created_at: new Date().toISOString(),
       });
     } catch (quoteError) {

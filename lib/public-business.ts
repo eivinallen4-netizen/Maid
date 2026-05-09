@@ -3,6 +3,7 @@ export const DEFAULT_INSTAGRAM_URL = "https://instagram.com/mountainspringsclean
 export interface PublicBusinessConfig {
   publishedHours?: Record<string, any>;
   serviceSectionImageUrls: string[];
+  randomBackgroundImageUrls: string[];
   sameAsLinks: string[];
   [key: string]: any;
 }
@@ -10,6 +11,7 @@ export interface PublicBusinessConfig {
 export const defaultPublicBusinessConfig: PublicBusinessConfig = {
   publishedHours: {},
   serviceSectionImageUrls: [],
+  randomBackgroundImageUrls: [],
   sameAsLinks: [],
 };
 
@@ -17,6 +19,6 @@ export function normalizePublicBusinessConfig(config: any, scheduleWindows?: any
   return config || defaultPublicBusinessConfig;
 }
 
-export function buildOpeningHoursSpecification(config: PublicBusinessConfig): any {
+export function buildOpeningHoursSpecification(config: any): any {
   return {};
 }

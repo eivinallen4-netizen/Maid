@@ -116,7 +116,7 @@ export async function POST(request: Request) {
       metadata: {
         source: "quote_request",
         pane_counts: JSON.stringify(paneCounts),
-        story_level: body.selections.storyLevel,
+        story_level: body.selections.storyLevel || "",
         total: String(total),
       },
     });
@@ -215,7 +215,7 @@ export async function POST(request: Request) {
                   <tr>
                     <td style="padding:14px 24px;border-bottom:1px solid rgba(245,250,253,0.12);">
                       <span style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#1B9E8A;">Story Level</span><br/>
-                      <span style="font-family: Arial, sans-serif;font-size:20px;font-weight:700;color:#F5FAFD;">${escapeHtml(body.selections.storyLevel)}</span>
+                      <span style="font-family: Arial, sans-serif;font-size:20px;font-weight:700;color:#F5FAFD;">${escapeHtml(body.selections.storyLevel || "N/A")}</span>
                     </td>
                     <td style="padding:14px 24px;border-bottom:1px solid rgba(245,250,253,0.12);border-left:1px solid rgba(245,250,253,0.12);">
                       <span style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#1B9E8A;">Add-ons</span><br/>

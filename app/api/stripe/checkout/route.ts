@@ -1,10 +1,9 @@
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
-import { readPricing } from "@/lib/pricing-store";
-import { computeQuote, type QuoteSelections } from "@/lib/quote";
 import { getSessionFromRequest } from "@/lib/auth";
 import { addJob, findJobByStripeSessionId } from "@/lib/jobs";
 import { upsertTransaction, type TransactionLineItem } from "@/lib/transactions";
+import { defaultPricing } from "@/config/pricing.config";
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 const stripeApiVersion: Stripe.LatestApiVersion =
@@ -67,7 +66,11 @@ export async function POST(request: Request) {
           country?: string;
         };
       };
-      selections?: QuoteSelections;
+      selections?: {
+        serviceType?: string;
+        homeSize?: string;
+        addons?: Record<string, boolean>;
+      };
       serviceDate?: string;
       serviceTime?: string;
     };
@@ -76,18 +79,48 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Valid name and email are required." }, { status: 400 });
     }
 
-    if (!body.selections) {
-      return NextResponse.json({ error: "selections is required" }, { status: 400 });
+    if (!body.selections?.serviceType || !body.selections?.homeSize) {
+      return NextResponse.json(
+        { error: "Service type and home size are required." },
+        { status: 400 }
+      );
     }
 
-    const paneCounts = (body.selections.paneCounts ?? {}) as Record<string, number>;
-    const totalWindows = Object.values(paneCounts).reduce((sum, count) => sum + count, 0);
-    if (totalWindows <= 0) {
-      return NextResponse.json({ error: "Valid pane count is required." }, { status: 400 });
+    // Calculate pricing for maid service
+    let total = defaultPricing.serviceTypes[body.selections.serviceType as keyof typeof defaultPricing.serviceTypes] || 0;
+
+    // Add home size surcharge
+    if (body.selections.homeSize !== "1bed" && body.selections.homeSize !== "2bed") {
+      const surcharge =
+        defaultPricing.homeSizeSurcharge[
+          body.selections.homeSize as keyof typeof defaultPricing.homeSizeSurcharge
+        ] || 0;
+      total += surcharge;
     }
 
-    const pricing = await readPricing();
-    const totals = computeQuote(pricing, body.selections);
+    // Add selected addons
+    if (body.selections.addons) {
+      Object.entries(body.selections.addons).forEach(([addon, selected]) => {
+        if (
+          selected &&
+          addon in defaultPricing.addons
+        ) {
+          total += defaultPricing.addons[addon as keyof typeof defaultPricing.addons];
+        }
+      });
+    }
+
+    // Apply minimum
+    total = Math.max(total, defaultPricing.jobMinimum);
+
+    const totals = {
+      base: total,
+      storySurcharge: 0,
+      addonsTotal: 0,
+      subtotal: total,
+      total,
+      minimumApplied: false,
+    };
     const stripe = new Stripe(stripeSecretKey, { apiVersion: stripeApiVersion });
 
     const customerAddress = body.user.addressDetails?.line1
@@ -123,131 +156,101 @@ export async function POST(request: Request) {
 
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
     const transactionLineItems: TransactionLineItem[] = [];
-    const paneTypeLabels: Record<string, string> = {
-      standard: "Standard",
-      specialty: "Sliding / Large",
-      french: "French Pane",
-    };
-    (Object.keys(pricing.paneTypes) as Array<keyof typeof pricing.paneTypes>).forEach((type) => {
-      const count = paneCounts[type] ?? 0;
-      if (count <= 0) return;
-      const name = `Window panes - ${paneTypeLabels[type] ?? type.replace(/_/g, " ")}`;
-      const unitAmount = Math.round(pricing.paneTypes[type] * 100) / 100;
-      lineItems.push({
-        price_data: {
-          currency: "usd",
-          product_data: {
-            name,
-            metadata: { panes: String(count) },
-          },
-          unit_amount: Math.round(unitAmount * 100),
+
+    // Add service type
+    const serviceTypeLabel = body.selections.serviceType
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+    const servicePrice = defaultPricing.serviceTypes[body.selections.serviceType as keyof typeof defaultPricing.serviceTypes] || 0;
+
+    lineItems.push({
+      price_data: {
+        currency: "usd",
+        product_data: {
+          name: `${serviceTypeLabel} Service`,
         },
-        quantity: count,
-      });
-      transactionLineItems.push({
-        name,
-        quantity: count,
-        unit_amount: unitAmount,
-        total_amount: unitAmount * count,
-      });
+        unit_amount: Math.round(servicePrice * 100),
+      },
+      quantity: 1,
+    });
+    transactionLineItems.push({
+      name: `${serviceTypeLabel} Service`,
+      quantity: 1,
+      unit_amount: servicePrice,
+      total_amount: servicePrice,
     });
 
-    if (body.selections.storyLevel === "3+") {
-      const name = "Story surcharge (3rd floor+)";
-      const unitAmount = Math.round(pricing.storySurcharge.third_plus * 100) / 100;
-      lineItems.push({
-        price_data: {
-          currency: "usd",
-          product_data: {
-            name,
+    // Add home size surcharge if applicable
+    if (body.selections.homeSize !== "1bed" && body.selections.homeSize !== "2bed") {
+      const surcharge =
+        defaultPricing.homeSizeSurcharge[
+          body.selections.homeSize as keyof typeof defaultPricing.homeSizeSurcharge
+        ] || 0;
+      if (surcharge > 0) {
+        const sizeLabel = body.selections.homeSize.replace("bed", " Bed");
+        lineItems.push({
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: `${sizeLabel} Surcharge`,
+            },
+            unit_amount: Math.round(surcharge * 100),
           },
-          unit_amount: Math.round(unitAmount * 100),
-        },
-        quantity: totalWindows,
-      });
-      transactionLineItems.push({
-        name,
-        quantity: totalWindows,
-        unit_amount: unitAmount,
-        total_amount: unitAmount * totalWindows,
+          quantity: 1,
+        });
+        transactionLineItems.push({
+          name: `${sizeLabel} Surcharge`,
+          quantity: 1,
+          unit_amount: surcharge,
+          total_amount: surcharge,
+        });
+      }
+    }
+
+    // Add selected add-ons
+    if (body.selections.addons) {
+      const addonLabels: Record<string, string> = {
+        refrigerator: "Refrigerator Cleaning",
+        oven: "Oven Cleaning",
+        onsite_laundry: "Laundry Room",
+        dishes: "Dishes",
+        green_products: "Green Products",
+        organizing: "Organizing",
+        windows: "Windows",
+        blinds: "Blinds",
+        heavy_duty: "Heavy Duty",
+        cabinets: "Cabinets",
+        walls: "Walls",
+        deep_clean_floors: "Deep Clean Floors",
+        balcony: "Balcony",
+        garage_sweep: "Garage Sweep",
+      };
+
+      Object.entries(body.selections.addons).forEach(([addon, selected]) => {
+        if (!selected || !(addon in defaultPricing.addons)) return;
+        const price = defaultPricing.addons[addon as keyof typeof defaultPricing.addons];
+        const label = addonLabels[addon] || addon.replace(/_/g, " ");
+
+        lineItems.push({
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: label,
+            },
+            unit_amount: Math.round(price * 100),
+          },
+          quantity: 1,
+        });
+        transactionLineItems.push({
+          name: label,
+          quantity: 1,
+          unit_amount: price,
+          total_amount: price,
+        });
       });
     }
 
-    if (body.selections.addons.screen) {
-      const name = "Screen cleaning";
-      const unitAmount = Math.round(pricing.addons.screen * 100) / 100;
-      lineItems.push({
-        price_data: {
-          currency: "usd",
-          product_data: { name },
-          unit_amount: Math.round(unitAmount * 100),
-        },
-        quantity: totalWindows,
-      });
-      transactionLineItems.push({
-        name,
-        quantity: totalWindows,
-        unit_amount: unitAmount,
-        total_amount: unitAmount * totalWindows,
-      });
-    }
-
-    if (body.selections.addons.track) {
-      const name = "Track cleaning";
-      const unitAmount = Math.round(pricing.addons.track * 100) / 100;
-      lineItems.push({
-        price_data: {
-          currency: "usd",
-          product_data: { name },
-          unit_amount: Math.round(unitAmount * 100),
-        },
-        quantity: totalWindows,
-      });
-      transactionLineItems.push({
-        name,
-        quantity: totalWindows,
-        unit_amount: unitAmount,
-        total_amount: unitAmount * totalWindows,
-      });
-    }
-
-    if (body.selections.addons.hard_water) {
-      const name = "Hard water removal";
-      const unitAmount = Math.round(pricing.addons.hard_water * 100) / 100;
-      lineItems.push({
-        price_data: {
-          currency: "usd",
-          product_data: { name },
-          unit_amount: Math.round(unitAmount * 100),
-        },
-        quantity: totalWindows,
-      });
-      transactionLineItems.push({
-        name,
-        quantity: totalWindows,
-        unit_amount: unitAmount,
-        total_amount: unitAmount * totalWindows,
-      });
-    }
-
-    if (body.selections.addons.interior) {
-      const name = "Interior cleaning";
-      const unitAmount = Math.round(pricing.addons.interior * 100) / 100;
-      lineItems.push({
-        price_data: {
-          currency: "usd",
-          product_data: { name },
-          unit_amount: Math.round(unitAmount * 100),
-        },
-        quantity: totalWindows,
-      });
-      transactionLineItems.push({
-        name,
-        quantity: totalWindows,
-        unit_amount: unitAmount,
-        total_amount: unitAmount * totalWindows,
-      });
-    }
 
     const origin = getSiteUrl(request);
     if (totals.minimumApplied) {
@@ -293,8 +296,8 @@ export async function POST(request: Request) {
           customer_state: addressState,
           customer_postal: addressPostal,
           customer_country: addressCountry,
-          pane_counts: JSON.stringify(paneCounts),
-          pane_total: String(totalWindows),
+          service_type: body.selections.serviceType || "",
+          home_size: body.selections.homeSize || "",
           captured_at: createdAt,
           service_date: body.serviceDate ?? "",
           service_time: body.serviceTime ?? "",
@@ -307,9 +310,8 @@ export async function POST(request: Request) {
       metadata: {
         customer_name: body.user.name,
         customer_address: body.user.address ?? addressLine1,
-        pane_counts: JSON.stringify(paneCounts),
-        pane_total: String(totalWindows),
-        story_level: body.selections.storyLevel,
+        service_type: body.selections.serviceType || "",
+        home_size: body.selections.homeSize || "",
         total: String(totals.total),
         customer_email: body.user.email,
         customer_address_line1: addressLine1,
@@ -339,12 +341,6 @@ export async function POST(request: Request) {
             email: body.user.email,
             address: body.user.address ?? addressLine1,
           },
-          pane_counts: {
-            standard: Number(paneCounts.standard ?? 0) || undefined,
-            specialty: Number(paneCounts.specialty ?? 0) || undefined,
-            french: Number(paneCounts.french ?? 0) || undefined,
-          },
-          pane_total: totalWindows,
           service_date: body.serviceDate ?? undefined,
           service_time: body.serviceTime ?? undefined,
           rep: {

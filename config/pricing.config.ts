@@ -2,7 +2,7 @@
 // Edit these values to customize pricing for your business.
 
 export type ServiceType = "standard" | "deep" | "moveout";
-export type HomeSize = "1bed" | "2bed" | "3bed" | "4bed" | "5bed";
+export type HomeSize = "1bed" | "2bed" | "3bed" | "4bed" | "5bed" | "6bed";
 
 export interface Pricing {
   serviceTypes: Record<ServiceType, number>;
@@ -10,14 +10,23 @@ export interface Pricing {
     "3bed": number;
     "4bed": number;
     "5bed": number;
+    "6bed": number;
   };
   addons: {
-    laundry: number;
+    refrigerator: number;
+    oven: number;
+    onsite_laundry: number;
+    dishes: number;
+    green_products: number;
+    organizing: number;
     windows: number;
-    baseboards: number;
-    fridge: number;
-    move_in: number;
-    airbnb_turnover: number;
+    blinds: number;
+    heavy_duty: number;
+    cabinets: number;
+    walls: number;
+    deep_clean_floors: number;
+    balcony: number;
+    garage_sweep: number;
   };
   jobMinimum: number;
 }
@@ -36,14 +45,23 @@ export const defaultPricing: Pricing = {
     "3bed": 75,
     "4bed": 150,
     "5bed": 225,
+    "6bed": 300,
   },
   addons: {
-    laundry: 35,
+    refrigerator: 45,
+    oven: 50,
+    onsite_laundry: 35,
+    dishes: 25,
+    green_products: 15,
+    organizing: 40,
     windows: 50,
-    baseboards: 40,
-    fridge: 45,
-    move_in: 125,
-    airbnb_turnover: 100,
+    blinds: 30,
+    heavy_duty: 60,
+    cabinets: 35,
+    walls: 40,
+    deep_clean_floors: 55,
+    balcony: 45,
+    garage_sweep: 50,
   },
   jobMinimum: 150,
 };

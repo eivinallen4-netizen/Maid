@@ -3,16 +3,32 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-export function RoleScheduleAdminPanel() {
+interface RoleScheduleAdminPanelProps {
+  role: string;
+  title: string;
+  description: string;
+  boardTitle: string;
+  boardDescription: string;
+  settingsHref: string;
+}
+
+export function RoleScheduleAdminPanel({
+  role,
+  title,
+  description,
+  boardTitle,
+  boardDescription,
+  settingsHref,
+}: RoleScheduleAdminPanelProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Schedule Management</CardTitle>
-        <CardDescription>Manage role-specific schedules</CardDescription>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="text-sm text-muted-foreground">
-          <p>Schedule management panel</p>
+          <p>{boardDescription}</p>
         </div>
         <Button className="mt-4" variant="outline">
           Configure Schedule

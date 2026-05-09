@@ -261,13 +261,13 @@ export default function Home() {
         <div className="round-stack-container fade-in">
           <div className="round-stack">
             <div className="rs-circle rs-c1">
-              <Image src="/images/standard-kitchen.jpg" alt="Clean kitchen" fill style={{ objectFit: "cover" }} />
+              <Image src="/images/standard-kitchen.jpg" alt="Clean kitchen" fill style={{ objectFit: "cover" }} loading="lazy" />
             </div>
             <div className="rs-circle rs-c2">
-              <Image src="/images/living-room.jpg" alt="Clean living room" fill style={{ objectFit: "cover" }} />
+              <Image src="/images/living-room.jpg" alt="Clean living room" fill style={{ objectFit: "cover" }} loading="lazy" />
             </div>
             <div className="rs-circle rs-c3">
-              <Image src="/images/standard-bathroom.jpg" alt="Clean bathroom" fill style={{ objectFit: "cover" }} />
+              <Image src="/images/standard-bathroom.jpg" alt="Clean bathroom" fill style={{ objectFit: "cover" }} loading="lazy" />
             </div>
           </div>
         </div>
@@ -329,13 +329,13 @@ export default function Home() {
           </div>
           <div className="round-stack-wm fade-in">
             <div className="rswm-c1">
-              <Image src="/images/recurring-calendar.jpg" alt="Recurring cleaning calendar" fill style={{ objectFit: "cover" }} />
+              <Image src="/images/recurring-calendar.jpg" alt="Recurring cleaning calendar" fill style={{ objectFit: "cover" }} loading="lazy" />
             </div>
             <div className="rswm-c2">
-              <Image src="/images/living-room.jpg" alt="Clean living room" fill style={{ objectFit: "cover" }} />
+              <Image src="/images/living-room.jpg" alt="Clean living room" fill style={{ objectFit: "cover" }} loading="lazy" />
             </div>
             <div className="rswm-c3">
-              <Image src="/images/standard-kitchen.jpg" alt="Clean kitchen" fill style={{ objectFit: "cover" }} />
+              <Image src="/images/standard-kitchen.jpg" alt="Clean kitchen" fill style={{ objectFit: "cover" }} loading="lazy" />
             </div>
           </div>
         </div>
@@ -357,7 +357,7 @@ export default function Home() {
         <div className="press-inner">
           <div className="fade-in">
             <div className="section-label-white">Media Coverage</div>
-            <div className="section-heading-white">Mountain Springs in the news</div>
+            <h2 className="section-heading-white">Mountain Springs in the news</h2>
           </div>
           <div className="press-grid">
             {[
@@ -376,11 +376,11 @@ export default function Home() {
       </section>
 
       {/* REVIEWS SECTION */}
-      <section className="section-reviews">
+      <section className="section-reviews" id="reviews">
         <div className="reviews-photo-side">
           <div className="reviews-circle-stack">
             <div className="rv-c1">
-              <Image src="/images/reviews-family.jpg" alt="Happy family in clean home" fill style={{ objectFit: "cover" }} />
+              <Image src="/images/reviews-family.jpg" alt="Happy family in clean home" fill style={{ objectFit: "cover" }} loading="lazy" />
             </div>
             <div className="rv-c2">
               <Image src="/images/living-room.jpg" alt="Clean living room" fill style={{ objectFit: "cover" }} />
@@ -418,7 +418,7 @@ export default function Home() {
       {/* BOOKING SECTION */}
       <section id="book" className="booking-section">
         <div style={{ maxWidth: 960, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: 24 }}>
+          <div style={{ textAlign: "center", marginBottom: 16 }}>
             <div className="split-label" style={{ justifyContent: "center", display: "flex" }}>Get Started</div>
             <h2 style={{ fontSize: "clamp(28px,3.5vw,48px)", fontWeight: 900, color: "var(--neutral-dark)", marginBottom: 12 }}>Ready when you are.</h2>
             <p style={{ fontSize: 16, color: "var(--neutral-mid)", maxWidth: 480, margin: "0 auto" }}>Book online in minutes, or hop on a quick call — no pressure, no commitment.</p>
@@ -477,7 +477,7 @@ export default function Home() {
                 </div>
               ) : (
                 <form onSubmit={handleCallSubmit} className="bk-body">
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
+                  <div className="bk-contact-grid">
                     <div className="bk-field">
                       <label className="bk-label" htmlFor="c-name">Your Name <span style={{ color: "#ef4444" }}>*</span></label>
                       <input type="text" id="c-name" name="name" className="bk-input" placeholder="Jane Smith" required />
@@ -595,7 +595,7 @@ export default function Home() {
                 {step === 2 && (
                   <div className="bk-body">
                     <div className="bk-section-label">How often would you like us?</div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: 32 }}>
+                    <div className="freq-grid">
                       {freqOptions.map(({ val, sub, badge }) => (
                         <button key={val} type="button" className={`freq-card${freq === val ? " active" : ""}`} onClick={() => setFreq(val)}>
                           <div className="freq-card-title">{val}</div>
@@ -621,7 +621,7 @@ export default function Home() {
                 {/* Step 3 */}
                 {step === 3 && !bookingDone && (
                   <div className="bk-body">
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
+                    <div className="bk-contact-grid">
                       <div className="bk-field">
                         <label className="bk-label" htmlFor="f-name">Full Name <span style={{ color: "#ef4444" }}>*</span></label>
                         <input type="text" id="f-name" name="name" className="bk-input" placeholder="Jane Smith" required />

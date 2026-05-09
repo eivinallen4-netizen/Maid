@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Bebas_Neue, Manrope } from "next/font/google";
 import "./globals.css";
 
@@ -6,6 +6,7 @@ const appSans = Manrope({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-app-sans",
+  fallback: ["system-ui", "sans-serif"],
 });
 
 const appDisplay = Bebas_Neue({
@@ -13,7 +14,13 @@ const appDisplay = Bebas_Neue({
   weight: "400",
   display: "swap",
   variable: "--font-app-display",
+  fallback: ["system-ui", "sans-serif"],
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
 
 export const metadata: Metadata = {
   title: {
@@ -69,6 +76,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </head>
       <body className={`${appSans.variable} ${appDisplay.variable} antialiased`} suppressHydrationWarning>

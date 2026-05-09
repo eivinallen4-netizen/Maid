@@ -7,7 +7,7 @@ const QUOTES_PATH = path.join(process.cwd(), "data", "quotes.jsonl");
 
 export type QuoteRecord = {
   id?: string;
-  user: { name: string; email: string; address: string };
+  user: { name: string; email: string; address?: string; phone?: string };
   rep?: { name?: string; email?: string };
   selections: QuoteSelections;
   totals: ReturnType<typeof computeQuote>;

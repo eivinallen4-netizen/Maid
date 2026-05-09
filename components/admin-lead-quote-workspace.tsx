@@ -24,7 +24,7 @@ import {
   buildContactDraft,
   getSelectionPaneTotal,
   isValidLeadEmail,
-  type ContactQuoteDraft,
+  type ContactDraft,
 } from "@/lib/contact-lead-helpers";
 import type { PaneType, Pricing, StoryLevel } from "@/lib/pricing";
 import { computeQuote, type AddOnSelection } from "@/lib/quote";
@@ -33,6 +33,18 @@ type AddonConfig = {
   id: keyof AddOnSelection;
   label: string;
   free: boolean;
+};
+
+type QuoteDraft = {
+  user: { name: string; email: string; address?: string };
+  selections: {
+    paneCounts?: Record<string, number>;
+    storyLevel?: StoryLevel;
+    addons?: AddOnSelection;
+  };
+  serviceDate?: string;
+  serviceTime?: string;
+  notes?: string;
 };
 
 const paneTypeOptions: { id: PaneType; label: string; icon: typeof Square }[] = [
@@ -66,7 +78,18 @@ export function AdminLeadQuoteWorkspace({
   addonsConfig,
   onContactUpdated,
 }: AdminLeadQuoteWorkspaceProps) {
-  const [contactDraft, setContactDraft] = useState<ContactQuoteDraft>(() => buildContactDraft(contact));
+  const [contactDraft, setContactDraft] = useState<QuoteDraft>(() => ({
+    user: {
+      name: contact.name || "",
+      email: contact.email || "",
+      address: contact.address || "",
+    },
+    selections: {
+      paneCounts: {},
+      addons: {},
+    },
+    notes: contact.notes || "",
+  }));
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -76,7 +99,18 @@ export function AdminLeadQuoteWorkspace({
   const [paymentUrl, setPaymentUrl] = useState("");
 
   useEffect(() => {
-    setContactDraft(buildContactDraft(contact));
+    setContactDraft({
+      user: {
+        name: contact.name || "",
+        email: contact.email || "",
+        address: contact.address || "",
+      },
+      selections: {
+        paneCounts: {},
+        addons: {},
+      },
+      notes: contact.notes || "",
+    });
     setStatus(null);
     setError(null);
     setPaymentUrl("");
@@ -124,7 +158,7 @@ export function AdminLeadQuoteWorkspace({
             ...prev,
             selections: {
               ...prev.selections,
-              addons: { ...prev.selections.addons, [id]: !prev.selections.addons[id] },
+              addons: { ...(prev.selections.addons || {}), [id]: !(prev.selections.addons?.[id] ?? false) },
             },
           }
         : prev,
@@ -153,13 +187,13 @@ export function AdminLeadQuoteWorkspace({
             firstName: firstName || undefined,
             lastName: lastName || undefined,
             phone: contact.phone,
-            address: contactDraft.user.address.trim() || undefined,
+            address: (contactDraft.user.address?.trim()) || undefined,
             paneCounts: contactDraft.selections.paneCounts,
             paneCount: totalPanes || undefined,
             bestTimeToCall: contact.bestTimeToCall,
             homeType: contact.homeType,
             serviceType: contact.serviceType,
-            notes: contactDraft.notes.trim() || undefined,
+            notes: (contactDraft.notes?.trim()) || undefined,
             source: contact.source,
           },
         }),
@@ -169,7 +203,18 @@ export function AdminLeadQuoteWorkspace({
         throw new Error(payload.error || "Unable to update contact.");
       }
       onContactUpdated(payload.contact);
-      setContactDraft(buildContactDraft(payload.contact));
+      setContactDraft({
+        user: {
+          name: payload.contact.name || "",
+          email: payload.contact.email || "",
+          address: payload.contact.address || "",
+        },
+        selections: {
+          paneCounts: {},
+          addons: {},
+        },
+        notes: payload.contact.notes || "",
+      });
       setStatus("Lead saved.");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Unable to save.");
@@ -182,9 +227,9 @@ export function AdminLeadQuoteWorkspace({
     setError(null);
     setStatus(null);
     const trimmedUser = {
-      name: contactDraft.user.name.trim(),
-      email: contactDraft.user.email.trim(),
-      address: contactDraft.user.address.trim(),
+      name: contactDraft.user.name?.trim() || "",
+      email: contactDraft.user.email?.trim() || "",
+      address: (contactDraft.user.address?.trim()) || "",
     };
     const totalPanes = getSelectionPaneTotal(contactDraft.selections);
     if (!trimmedUser.name || !trimmedUser.email || !trimmedUser.address) {
@@ -238,11 +283,11 @@ export function AdminLeadQuoteWorkspace({
 
   async function createCheckoutLink() {
     const trimmedUser = {
-      name: contactDraft.user.name.trim(),
-      email: contactDraft.user.email.trim(),
-      address: contactDraft.user.address.trim(),
+      name: contactDraft.user.name?.trim() || "",
+      email: contactDraft.user.email?.trim() || "",
+      address: (contactDraft.user.address?.trim()) || "",
     };
-    const totalPanes = Object.values(contactDraft.selections.paneCounts).reduce((s, n) => s + n, 0);
+    const totalPanes = Object.values(contactDraft.selections.paneCounts || {}).reduce((s, n) => s + (n || 0), 0);
     if (!trimmedUser.name || !trimmedUser.email || !trimmedUser.address) {
       throw new Error("Name, email, and address are required before creating a payment link.");
     }
@@ -465,7 +510,7 @@ export function AdminLeadQuoteWorkspace({
             <div className="grid gap-2">
               {addonRows.map((row) => {
                 const Icon = row.icon;
-                const active = contactDraft.selections.addons[row.id];
+                const active = contactDraft.selections.addons?.[row.id];
                 const included = includedAddons[row.id];
                 return (
                   <Button
@@ -497,7 +542,7 @@ export function AdminLeadQuoteWorkspace({
             <p className="mt-2 text-sm text-slate-600">
               {(
                 (["standard", "specialty", "french"] as const).reduce(
-                  (s, k) => s + (contactDraft.selections.paneCounts[k] ?? 0),
+                  (s, k) => s + ((contactDraft.selections.paneCounts?.[k]) ?? 0),
                   0,
                 )
               )}{" "}

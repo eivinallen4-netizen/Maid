@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, Mail, Phone } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
-export default function ThankYouPage() {
+function ThankYouContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
   const [loading, setLoading] = useState(true);
@@ -122,13 +122,8 @@ export default function ThankYouPage() {
                 {/* Action Buttons */}
                 <div className="flex gap-3 pt-4">
                   <Link href="/" className="flex-1">
-                    <Button variant="outline" className="w-full">
-                      Back to Home
-                    </Button>
-                  </Link>
-                  <Link href="/quote-builder" className="flex-1">
                     <Button className="w-full bg-green-600 hover:bg-green-700">
-                      Create Another Quote
+                      Back to Home
                     </Button>
                   </Link>
                 </div>
@@ -138,5 +133,13 @@ export default function ThankYouPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function ThankYouPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <ThankYouContent />
+    </Suspense>
   );
 }

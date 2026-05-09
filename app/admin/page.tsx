@@ -38,7 +38,6 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { AdminPanel } from "@/components/admin-panel";
-import { SiteHeader } from "@/components/site-header";
 import { ScheduleWindowSettings } from "@/components/schedule-window-settings";
 import { ScheduleAdminLinks } from "@/components/schedule-admin-links";
 import { UsersAdminPanel } from "@/components/users-admin-panel";
@@ -740,8 +739,8 @@ export default function AdminPage() {
             selections: {
               ...prev.selections,
               addons: {
-                ...prev.selections.addons,
-                [id]: !prev.selections.addons[id],
+                ...(prev.selections.addons || {}),
+                [id]: !(prev.selections.addons?.[id] ?? false),
               },
             },
           }
@@ -1254,26 +1253,20 @@ export default function AdminPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-background text-foreground">
-        <SiteHeader />
-        <div className="mx-auto max-w-3xl px-4 py-10">
-          <p className="text-sm text-muted-foreground">Checking admin access...</p>
-        </div>
+      <div className="mx-auto max-w-3xl px-4 py-10">
+        <p className="text-sm text-muted-foreground">Checking admin access...</p>
       </div>
     );
   }
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-background text-foreground">
-        <SiteHeader />
-        <div className="mx-auto max-w-3xl px-4 py-10">
-          <div className="rounded-2xl border border-border bg-card p-6">
+      <div className="mx-auto max-w-3xl px-4 py-10">
+        <div className="rounded-2xl border border-border bg-card p-6">
           <h1 className="text-xl font-semibold">Admin access required</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             This page only works for admin sessions. Sign in with an admin account to load jobs, users, and admin tools.
           </p>
-          </div>
         </div>
       </div>
     );
@@ -1321,58 +1314,6 @@ export default function AdminPage() {
             })}
           </div>
         </div>
-
-        <nav className="flex-1 space-y-6 px-3 py-6 overflow-y-auto">
-          {["operations", "config", "danger"].map((section) => {
-            const sectionTabs = tabs.filter((t) => t.section === section);
-            const sectionLabel = section === "operations" ? "OPERATIONS" : section === "config" ? "CONFIGURATION" : "DANGER";
-            return (
-              <div key={section} className="w-full">
-                <p className="px-2 py-2 text-xs font-black uppercase tracking-widest mb-2" style={{ color: "rgba(255,255,255,0.5)" }}>
-                  {sectionLabel}
-                </p>
-                <div className="space-y-1 w-full">
-                  {sectionTabs.flatMap((item) => {
-                    const Icon = item.icon;
-                    const sectionButton = (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => setActiveSection(item.id)}
-                        className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm font-medium transition-all border-l-3 ${
-                          activeSection === item.id
-                            ? "text-white bg-white/10 border-l-3"
-                            : "text-white/60 hover:bg-white/5 hover:text-white border-l-3 border-transparent"
-                        }`}
-                        style={activeSection === item.id ? { borderLeftColor: COLORS.accent } : {}}
-                      >
-                        <Icon size={18} />
-                        <span className="truncate">{item.label}</span>
-                      </button>
-                    );
-                    if (item.id !== "email") {
-                      return [sectionButton];
-                    }
-                    const leadsActive = pathname.startsWith("/admin/leads");
-                    return [
-                      sectionButton,
-                      <Link
-                        key="admin-leads-nav"
-                        href="/admin/leads"
-                        className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all ${
-                          leadsActive ? "text-white bg-white/10" : "hover:bg-white/5 hover:text-white"
-                        }`}
-                      >
-                        <FileText size={18} />
-                        <span className="truncate">Leads</span>
-                      </Link>,
-                    ];
-                  })}
-                </div>
-              </div>
-            );
-          })}
-        </nav>
 
         <div className="px-6 py-5 border-t" style={{ borderColor: "rgba(255,255,255,0.15)" }}>
           <p className="text-xs font-semibold text-white/80" style={{ letterSpacing: "0.3px" }}>
@@ -1562,7 +1503,7 @@ export default function AdminPage() {
                   <div className="grid gap-2">
                     {addonRows.map((row) => {
                       const Icon = row.icon;
-                      const active = selectedQuote.selections.addons[row.id];
+                      const active = selectedQuote.selections.addons?.[row.id];
                       const included = includedAddons[row.id];
                       return (
                         <Button
@@ -2093,7 +2034,7 @@ export default function AdminPage() {
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {Object.entries(pricing.addons).map(([addonId, price]) => {
-                  const addonLabel = { oven: "Oven Interior", fridge: "Fridge Interior", laundry: "Laundry (1 load)", interior_windows: "Interior Windows", garage: "Garage", patio: "Patio" }[addonId] || addonId;
+                  const addonLabel = { refrigerator: "Refrigerator", oven: "Oven", laundry: "Onsite Laundry", dishes: "Dishes", green_products: "Green Products", organizing: "Organizing", windows: "Windows", blinds: "Blinds", heavy_duty: "Heavy-Duty", cabinets: "Cabinets", walls: "Walls", deep_clean_floors: "Deep Clean Floors", balcony: "Balcony", garage_sweep: "Garage Sweep" }[addonId] || addonId;
                   return (
                     <div key={addonId} className="space-y-2">
                       <Label htmlFor={`addon-${addonId}`} className="text-sm font-semibold">
@@ -2146,6 +2087,37 @@ export default function AdminPage() {
                     value={pricing.jobMinimum}
                     onChange={(event) =>
                       setPricing((prev) => ({ ...prev, jobMinimum: Number(event.target.value) || 0 }))
+                    }
+                    className="w-32"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-lg border border-slate-200 bg-white text-slate-900">
+            <CardHeader>
+              <CardTitle>Anchor Multiplier</CardTitle>
+              <CardDescription>Markup multiplier for displaying the "regular price" (crossed out) in quotes.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-semibold">Price multiplier</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="anchor-multiplier" className="text-xs text-slate-600">
+                    Multiplier (e.g., 1.3)
+                  </Label>
+                  <Input
+                    id="anchor-multiplier"
+                    type="number"
+                    min={1}
+                    max={3}
+                    step="0.1"
+                    value={pricing.anchorMultiplier}
+                    onChange={(event) =>
+                      setPricing((prev) => ({ ...prev, anchorMultiplier: Math.max(1, Number(event.target.value) || 1) }))
                     }
                     className="w-32"
                   />
@@ -2591,7 +2563,7 @@ export default function AdminPage() {
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <p className="text-sm font-semibold text-slate-900">Mid-page accent background images</p>
                   <p className="text-xs text-slate-500">
-                    {publicBusiness.randomBackgroundImageUrls.length} / 24
+                    {publicBusiness.randomBackgroundImageUrls?.length ?? 0} / 24
                   </p>
                 </div>
                 <p className="text-xs text-slate-500">
@@ -2599,7 +2571,7 @@ export default function AdminPage() {
                   server HTML stays stable).
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  {publicBusiness.randomBackgroundImageUrls.map((url: string, index: number) => (
+                  {(publicBusiness.randomBackgroundImageUrls ?? []).map((url: string, index: number) => (
                     <div key={`${url}-${index}`} className="relative h-24 w-36 overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
                       <Image src={storedMediaToDisplayUrl(url)} alt="" fill className="object-cover" unoptimized />
                       <Button

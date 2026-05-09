@@ -39,10 +39,8 @@ export const rolePermissions: Record<AppAuthRole, string[]> = {
     "/admin/leads",
     "/admin/schedule",
     "/account",
-    "/quote",
-    "/portal-quote",
   ],
-  rep: ["/account", "/quote", "/portal-quote"],
+  rep: ["/account"],
   tech: ["/account"],
 };
 

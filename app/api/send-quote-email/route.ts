@@ -54,14 +54,16 @@ ${quote.selections ? `Service Type: ${quote.selections.serviceType || "N/A"}` : 
 ${quote.selections ? `Home Size: ${quote.selections.homeSize || "N/A"}` : ""}
 
 PRICING BREAKDOWN:
-${quote.totals?.breakdown ? Object.entries(quote.totals.breakdown).map(([key, value]) => `${key}: $${value}`).join("\n") : ""}
+${quote.totals ? `Base: $${quote.totals.base || 0}
+Story Surcharge: $${quote.totals.storySurcharge || 0}
+Add-ons: $${quote.totals.addonsTotal || 0}
+Subtotal: $${quote.totals.subtotal || 0}` : ""}
 
 TOTAL AMOUNT: $${quote.totals?.total || 0}
 
 ${message ? `\nADDITIONAL MESSAGE:\n${message}` : ""}
 
-To accept this quote or proceed with payment, please visit:
-${process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "https://mountainspringsclean.com"}/portal-quote?id=${quote.id}
+To accept this quote or proceed with payment, please contact us or visit our website.
 
 If you have any questions, please don't hesitate to contact us.
 

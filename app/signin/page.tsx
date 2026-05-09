@@ -16,7 +16,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   const nextPath =
     typeof resolvedSearchParams?.next === "string" && resolvedSearchParams.next.startsWith("/")
       ? resolvedSearchParams.next
-      : "/";
+      : "/rep";
 
   return (
     <div className="app-page-shell flex items-center justify-center px-4 py-10">
