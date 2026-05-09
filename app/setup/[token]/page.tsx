@@ -1,23 +1,15 @@
-import type { Metadata } from "next";
+"use client";
+
+import { useParams } from "next/navigation";
 import SetupForm from "../SetupForm";
-import { buildNoIndexMetadata } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
-export const metadata: Metadata = buildNoIndexMetadata({ title: "Complete Profile" });
-
-type SetupPageProps = {
-  params: Promise<{
-    token: string;
-  }>;
-};
-
-export default async function SetupPage({ params }: SetupPageProps) {
-  const { token } = await params;
-  const decodedToken = decodeURIComponent(token);
+export default function SetupPage() {
+  const params = useParams();
+  const token = typeof params.token === "string" ? decodeURIComponent(params.token) : null;
 
   return (
     <div className="app-page-shell flex items-center justify-center px-4 py-10">
-      <SetupForm token={decodedToken} />
+      <SetupForm token={token} />
     </div>
   );
 }

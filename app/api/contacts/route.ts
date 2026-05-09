@@ -1,6 +1,26 @@
 import { NextResponse } from "next/server";
 import { getSessionFromRequest } from "@/lib/auth";
-import { readContacts, writeContacts, type ContactRecord } from "@/lib/contacts-store";
+import { tursoExecute, tursoBatch, hasTursoConfig } from "@/lib/turso";
+
+export type ContactRecord = {
+  id: string;
+  email?: string;
+  phone?: string;
+  firstName?: string;
+  lastName?: string;
+  address?: string;
+  serviceType?: string;
+  bedrooms?: string;
+  bathrooms?: string;
+  bestTimeToCall?: string;
+  homeType?: string;
+  notes?: string;
+  source?: string;
+  pipelineStage?: "new_lead" | "contacted" | "quote_sent" | "follow_up" | "booked" | "lost";
+  rep_email?: string;
+  created_at: string;
+  brevo?: { id?: number };
+};
 
 export const runtime = "nodejs";
 
@@ -21,7 +41,7 @@ type ContactPayload = {
 
 type ContactPatchPayload = {
   id?: string;
-  updates?: ContactPayload;
+  updates?: ContactPayload & { pipelineStage?: string };
 };
 
 function isValidEmail(value: string) {
@@ -76,17 +96,22 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     }
 
-    const contacts = await readContacts();
+    if (!hasTursoConfig()) {
+      return NextResponse.json({ error: "Database not configured." }, { status: 500 });
+    }
+
+    const result = await tursoExecute("SELECT data FROM contacts ORDER BY created_at DESC");
+    const contacts: ContactRecord[] = result.rows.map((row) =>
+      JSON.parse(String(row.data)) as ContactRecord
+    );
 
     // If rep, filter to only their contacts
     if (session.role === "rep") {
-      const filteredContacts = contacts.filter(
-        (contact) => contact.rep_email === session.email
+      return NextResponse.json(
+        contacts.filter((contact) => contact.rep_email === session.email)
       );
-      return NextResponse.json(filteredContacts);
     }
 
-    // Admin sees all
     return NextResponse.json(contacts);
   } catch (error) {
     console.error(error);
@@ -106,9 +131,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Email must be valid." }, { status: 400 });
     }
 
-    // Try to get session (optional - for rep tracking)
-    const session = await getSessionFromRequest(request);
+    if (!hasTursoConfig()) {
+      return NextResponse.json({ error: "Database not configured." }, { status: 500 });
+    }
 
+    const session = await getSessionFromRequest(request);
     const brevo = body.email ? await createBrevoContact(body) : undefined;
     const record: ContactRecord = {
       id: globalThis.crypto?.randomUUID?.() ?? `contact_${Date.now()}`,
@@ -124,14 +151,16 @@ export async function POST(request: Request) {
       homeType: body.homeType?.trim() || undefined,
       notes: body.notes?.trim() || undefined,
       source: body.source?.trim() || undefined,
-      rep_email: session?.email, // Attach rep email if authenticated
+      pipelineStage: "new_lead",
+      rep_email: session?.email,
       created_at: new Date().toISOString(),
       brevo: { id: brevo?.id },
     };
 
-    const contacts = await readContacts();
-    contacts.unshift(record);
-    await writeContacts(contacts);
+    await tursoExecute({
+      sql: "INSERT INTO contacts (id, email, created_at, data) VALUES (?, ?, ?, ?)",
+      args: [record.id, record.email ?? null, record.created_at, JSON.stringify(record)],
+    });
 
     return NextResponse.json({ contact: record });
   } catch (error) {
@@ -148,6 +177,10 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     }
 
+    if (!hasTursoConfig()) {
+      return NextResponse.json({ error: "Database not configured." }, { status: 500 });
+    }
+
     const body = (await request.json()) as ContactPatchPayload;
     if (!body.id || !body.updates) {
       return NextResponse.json({ error: "Contact id and updates are required." }, { status: 400 });
@@ -157,31 +190,48 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Email must be valid." }, { status: 400 });
     }
 
-    const contacts = await readContacts();
-    const index = contacts.findIndex((contact) => contact.id === body.id);
-    if (index === -1) {
+    const result = await tursoExecute({
+      sql: "SELECT data FROM contacts WHERE id = ?",
+      args: [body.id],
+    });
+
+    if (!result.rows.length) {
       return NextResponse.json({ error: "Contact not found." }, { status: 404 });
     }
 
-    const current = contacts[index];
+    const current = JSON.parse(String(result.rows[0].data)) as ContactRecord;
+
+    if (body.updates.pipelineStage && typeof body.updates.pipelineStage === "string") {
+      const validStages = ["new_lead", "contacted", "quote_sent", "follow_up", "booked", "lost"];
+      if (!validStages.includes(body.updates.pipelineStage)) {
+        return NextResponse.json({ error: "Invalid pipeline stage." }, { status: 400 });
+      }
+    }
+
     const updated: ContactRecord = {
       ...current,
-      email: body.updates.email?.trim().toLowerCase() || undefined,
-      firstName: body.updates.firstName?.trim() || undefined,
-      lastName: body.updates.lastName?.trim() || undefined,
-      phone: body.updates.phone?.trim() || undefined,
-      address: body.updates.address?.trim() || undefined,
-      serviceType: body.updates.serviceType?.trim() || current.serviceType,
-      bedrooms: body.updates.bedrooms?.trim() || current.bedrooms,
-      bathrooms: body.updates.bathrooms?.trim() || current.bathrooms,
-      bestTimeToCall: body.updates.bestTimeToCall?.trim() || undefined,
-      homeType: body.updates.homeType?.trim() || undefined,
-      notes: body.updates.notes?.trim() || undefined,
-      source: body.updates.source?.trim() || current.source,
+      email: body.updates.email?.trim().toLowerCase() || current.email,
+      firstName: body.updates.firstName || current.firstName,
+      lastName: body.updates.lastName || current.lastName,
+      phone: body.updates.phone || current.phone,
+      address: body.updates.address || current.address,
+      serviceType: body.updates.serviceType || current.serviceType,
+      bedrooms: body.updates.bedrooms || current.bedrooms,
+      bathrooms: body.updates.bathrooms || current.bathrooms,
+      bestTimeToCall: body.updates.bestTimeToCall || current.bestTimeToCall,
+      homeType: body.updates.homeType || current.homeType,
+      notes: body.updates.notes || current.notes,
+      source: body.updates.source || current.source,
+      pipelineStage: body.updates.pipelineStage && typeof body.updates.pipelineStage === "string" &&
+        ["new_lead", "contacted", "quote_sent", "follow_up", "booked", "lost"].includes(body.updates.pipelineStage)
+        ? (body.updates.pipelineStage as "new_lead" | "contacted" | "quote_sent" | "follow_up" | "booked" | "lost")
+        : current.pipelineStage,
     };
 
-    contacts[index] = updated;
-    await writeContacts(contacts);
+    await tursoExecute({
+      sql: "UPDATE contacts SET data = ?, email = ? WHERE id = ?",
+      args: [JSON.stringify(updated), updated.email ?? null, body.id],
+    });
 
     return NextResponse.json({ contact: updated });
   } catch (error) {

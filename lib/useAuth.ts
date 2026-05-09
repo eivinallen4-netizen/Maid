@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { AuthSession } from "@/lib/auth";
 
@@ -7,8 +7,12 @@ export function useAuth(requireAdmin: boolean = false) {
   const [session, setSession] = useState<AuthSession | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const hasAttempted = useRef(false);
 
   useEffect(() => {
+    if (hasAttempted.current) return;
+    hasAttempted.current = true;
+
     const fetchSession = async () => {
       try {
         const response = await fetch("/api/auth/me");
@@ -41,7 +45,7 @@ export function useAuth(requireAdmin: boolean = false) {
     };
 
     fetchSession();
-  }, [router, requireAdmin]);
+  }, [requireAdmin]);
 
   return { session, loading, error };
 }

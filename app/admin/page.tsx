@@ -19,6 +19,7 @@ import {
   FileText,
   Grid2x2,
   Home,
+  Kanban,
   MapPin,
   PlusCircle,
   ScanLine,
@@ -39,6 +40,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { AdminPanel } from "@/components/admin-panel";
+import { AdminPipelinePage } from "@/components/admin-pipeline-page";
 import { ScheduleWindowSettings } from "@/components/schedule-window-settings";
 import { ScheduleAdminLinks } from "@/components/schedule-admin-links";
 import { UsersAdminPanel } from "@/components/users-admin-panel";
@@ -206,6 +208,7 @@ export default function AdminPage() {
     | "reviews"
     | "jobs"
     | "schedule"
+    | "pipeline"
     | "pricing"
     | "business"
     | "addons"
@@ -273,6 +276,7 @@ export default function AdminPage() {
       section === "reviews" ||
       section === "jobs" ||
       section === "schedule" ||
+      section === "pipeline" ||
       section === "pricing" ||
       section === "business" ||
       section === "addons" ||
@@ -1245,6 +1249,7 @@ export default function AdminPage() {
     { id: "reviews", label: "Reviews", icon: Star, section: "operations" as const },
     { id: "jobs", label: "Jobs", icon: Briefcase, section: "operations" as const },
     { id: "schedule", label: "Schedule", icon: Calendar, section: "operations" as const },
+    { id: "pipeline", label: "Pipeline", icon: Kanban, section: "operations" as const },
     { id: "pricing", label: "Pricing", icon: BadgeDollarSign, section: "config" as const },
     { id: "business", label: "Business", icon: Building2, section: "config" as const },
     { id: "addons", label: "Add-ons", icon: PlusCircle, section: "config" as const },
@@ -1264,7 +1269,7 @@ export default function AdminPage() {
   return (
     <div className="flex h-screen" style={{ background: COLORS.page }}>
       <div
-          className="w-64 flex flex-col flex-shrink-0 border-r overflow-hidden"
+          className="hidden md:flex w-64 flex-col flex-shrink-0 border-r overflow-hidden"
         style={{ background: COLORS.sidebar, borderColor: COLORS.borderDark }}
       >
         <div className="px-4 py-4 border-b" style={{ borderColor: "rgba(255,255,255,0.1)" }}>
@@ -1955,6 +1960,17 @@ export default function AdminPage() {
             <p className="text-sm" style={{ color: COLORS.textMuted }}>Manage team availability windows and appointment slots.</p>
           </div>
           <ScheduleAdminLinks />
+          </>
+          ) : null}
+
+          {activeSection === "pipeline" ? (
+          <>
+          <div className="mb-8">
+            <p className="text-xs font-black uppercase tracking-wider mb-2" style={{ color: COLORS.accent }}>MARKETING</p>
+            <h1 className="text-4xl font-bold mb-3" style={{ color: COLORS.primary }}>Pipeline</h1>
+            <p className="text-sm" style={{ color: COLORS.textMuted }}>Track leads from first contact through to booked job.</p>
+          </div>
+          <AdminPipelinePage />
           </>
           ) : null}
 

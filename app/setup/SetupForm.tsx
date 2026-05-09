@@ -42,7 +42,7 @@ export default function SetupForm({ token }: SetupFormProps) {
 
     async function validateToken() {
       try {
-        const response = await fetch(`/api/users/onboard?token=${encodeURIComponent(token)}`);
+        const response = await fetch(`/api/users/onboard?token=${encodeURIComponent(token ?? "")}`);
         if (!response.ok) {
           const data = (await response.json()) as { error?: string };
           throw new Error(data.error || "Invalid or expired invite.");

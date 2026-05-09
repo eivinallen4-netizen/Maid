@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { BarChart3, LogOut, Settings, User } from "lucide-react";
+import { BarChart3, LogOut, Settings, User, Shield } from "lucide-react";
+import { useAuthContext } from "@/lib/auth-context";
 
 type SessionUser = {
   id: string;
@@ -13,26 +14,12 @@ type SessionUser = {
 
 export function SiteHeader() {
   const router = useRouter();
-  const [user, setUser] = useState<SessionUser | null>(null);
+  const { user: authUser } = useAuthContext();
+  const user = authUser as SessionUser | null;
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 });
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch("/api/auth/me", { credentials: "include" });
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.user);
-        }
-      } catch (err) {
-        console.error("Failed to fetch user:", err);
-      }
-    };
-    fetchUser();
-  }, []);
 
   useEffect(() => {
     if (isOpen && buttonRef.current) {
@@ -85,6 +72,15 @@ export function SiteHeader() {
                   <div className="px-4 py-2 border-b border-gray-200 text-xs text-gray-500">
                     {user.email}
                   </div>
+                  {user.role === "admin" && (
+                    <button
+                      onClick={() => { router.push("/admin"); setIsOpen(false); }}
+                      className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-slate-50 transition text-left"
+                    >
+                      <Shield className="w-4 h-4" />
+                      Admin
+                    </button>
+                  )}
                   <button
                     onClick={() => { router.push("/stats"); setIsOpen(false); }}
                     className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-slate-50 transition text-left"

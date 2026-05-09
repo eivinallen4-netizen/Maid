@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
 export type UserRole = "admin" | "rep" | "tech";
@@ -17,8 +17,13 @@ export function useAuthGuard(allowedRoles?: UserRole[]) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [unauthorized, setUnauthorized] = useState(false);
+  const hasChecked = useRef(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (hasChecked.current) return;
+    hasChecked.current = true;
+
     const checkAuth = async () => {
       try {
         const res = await fetch("/api/auth/me", { credentials: "include" });
@@ -49,7 +54,7 @@ export function useAuthGuard(allowedRoles?: UserRole[]) {
     };
 
     void checkAuth();
-  }, [pathname, router, allowedRoles]);
+  }, [allowedRoles]);
 
   return { user, loading, unauthorized };
 }
