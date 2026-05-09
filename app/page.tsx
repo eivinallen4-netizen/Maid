@@ -416,16 +416,16 @@ export default function Home() {
       </div>
 
       {/* BOOKING SECTION */}
-      <section id="book" style={{ background: "var(--blue-pale)", padding: "80px 40px" }}>
+      <section id="book" className="booking-section">
         <div style={{ maxWidth: 960, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: 40 }}>
+          <div style={{ textAlign: "center", marginBottom: 24 }}>
             <div className="split-label" style={{ justifyContent: "center", display: "flex" }}>Get Started</div>
             <h2 style={{ fontSize: "clamp(28px,3.5vw,48px)", fontWeight: 900, color: "var(--neutral-dark)", marginBottom: 12 }}>Ready when you are.</h2>
             <p style={{ fontSize: 16, color: "var(--neutral-mid)", maxWidth: 480, margin: "0 auto" }}>Book online in minutes, or hop on a quick call — no pressure, no commitment.</p>
           </div>
 
           {/* Path selector */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 32 }}>
+          <div className="path-selector">
             <button
               className={`path-card${activePath === "book" ? " path-active" : ""}`}
               onClick={() => setActivePath("book")}
@@ -463,12 +463,12 @@ export default function Home() {
           {/* CALL FORM */}
           {activePath === "call" && (
             <div style={{ background: "#fff", borderRadius: 12, border: "1px solid var(--border)", boxShadow: "0 4px 16px rgba(21,101,242,0.08)", overflow: "hidden" }}>
-              <div style={{ background: "var(--blue)", padding: "32px 40px" }}>
+              <div style={{ background: "var(--blue)" }} className="bk-header">
                 <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", marginBottom: 6 }}>Schedule a Call</div>
                 <div style={{ fontSize: 14, color: "rgba(255,255,255,0.85)" }}>We&apos;ll discuss your home and answer questions about pricing. No obligation to book.</div>
               </div>
               {callDone ? (
-                <div style={{ padding: "48px 40px", textAlign: "center" }}>
+                <div style={{ textAlign: "center" }} className="bk-body">
                   <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--green)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
                     <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2.5} style={{ width: 28, height: 28 }}><path d="M5 13l4 4L19 7" /></svg>
                   </div>
@@ -476,7 +476,7 @@ export default function Home() {
                   <p style={{ fontSize: 15, color: "var(--neutral-mid)", maxWidth: 340, margin: "0 auto" }}>Expect a friendly call during your preferred window. No pressure — just a quick chat.</p>
                 </div>
               ) : (
-                <form onSubmit={handleCallSubmit} style={{ padding: 36 }}>
+                <form onSubmit={handleCallSubmit} className="bk-body">
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
                     <div className="bk-field">
                       <label className="bk-label" htmlFor="c-name">Your Name <span style={{ color: "#ef4444" }}>*</span></label>
@@ -528,7 +528,7 @@ export default function Home() {
             <form onSubmit={handleBookingSubmit}>
               <div style={{ background: "#fff", borderRadius: 24, border: "1px solid var(--border)", boxShadow: "0 8px 32px rgba(21,101,242,0.1)", overflow: "hidden" }}>
                 {/* Step indicator */}
-                <div style={{ background: "var(--blue)", padding: "28px 40px" }}>
+                <div style={{ background: "var(--blue)" }} className="bk-header">
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.95)" }}>
                       Step {step} of 3 · Takes 3 minutes
@@ -552,7 +552,7 @@ export default function Home() {
 
                 {/* Step 1 */}
                 {step === 1 && (
-                  <div style={{ padding: 40 }}>
+                  <div className="bk-body">
                     <div className="bk-section-label">How many bedrooms?</div>
                     <div className="bk-btn-row" style={{ marginBottom: 28 }}>
                       {bedsOptions.map((v) => (
@@ -593,7 +593,7 @@ export default function Home() {
 
                 {/* Step 2 */}
                 {step === 2 && (
-                  <div style={{ padding: 40 }}>
+                  <div className="bk-body">
                     <div className="bk-section-label">How often would you like us?</div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: 32 }}>
                       {freqOptions.map(({ val, sub, badge }) => (
@@ -620,7 +620,7 @@ export default function Home() {
 
                 {/* Step 3 */}
                 {step === 3 && !bookingDone && (
-                  <div style={{ padding: 40 }}>
+                  <div className="bk-body">
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
                       <div className="bk-field">
                         <label className="bk-label" htmlFor="f-name">Full Name <span style={{ color: "#ef4444" }}>*</span></label>
@@ -663,7 +663,7 @@ export default function Home() {
 
                 {/* Success */}
                 {bookingDone && (
-                  <div style={{ padding: "64px 40px", textAlign: "center" }}>
+                  <div style={{ textAlign: "center" }} className="bk-body">
                     <div style={{ width: 64, height: 64, borderRadius: "50%", background: "var(--green)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
                       <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2.5} style={{ width: 32, height: 32 }}><path d="M5 13l4 4L19 7" /></svg>
                     </div>

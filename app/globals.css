@@ -201,7 +201,7 @@ nav {
 .hero {
   margin-top: 64px;
   position: relative;
-  height: 620px;
+  height: 400px;
   overflow: hidden;
   background: linear-gradient(135deg, #1565F2 0%, #0F4EC4 100%);
   border-radius: 0;
@@ -285,7 +285,7 @@ nav {
   text-transform: uppercase;
   padding: 8px 16px;
   border-radius: 6px;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
   width: fit-content;
   backdrop-filter: blur(10px);
 }
@@ -302,7 +302,7 @@ nav {
   font-size: 17px;
   color: rgba(255,255,255,0.85);
   line-height: 1.7;
-  margin-bottom: 40px;
+  margin-bottom: 18px;
   max-width: 560px;
 }
 .hero-actions {
@@ -437,7 +437,7 @@ nav {
   background: linear-gradient(135deg, #E8F0FD 0%, #F0F5FF 100%);
   overflow: hidden;
   order: -1;
-  min-height: 320px;
+  min-height: 220px;
 }
 .round-stack {
   position: relative;
@@ -469,7 +469,7 @@ nav {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 40px 20px;
+  padding: 24px 16px;
   background: #fff;
 }
 .split-text.dark {
@@ -525,7 +525,7 @@ nav {
   font-size: 16px;
   line-height: 1.7;
   color: var(--neutral-mid);
-  margin-bottom: 28px;
+  margin-bottom: 16px;
   max-width: 420px;
 }
 .split-body.light { color: rgba(255,255,255,0.7); }
@@ -534,7 +534,7 @@ nav {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-bottom: 32px;
+  margin-bottom: 16px;
 }
 .checklist li {
   display: flex;
@@ -560,7 +560,7 @@ nav {
 .section-watermark {
   position: relative;
   background: #fff;
-  padding: 48px 0;
+  padding: 24px 0;
   overflow: hidden;
 }
 .watermark-text {
@@ -586,7 +586,7 @@ nav {
   padding: 0 16px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 20px;
   align-items: flex-start;
 }
 .wm-text-col {
@@ -597,7 +597,7 @@ nav {
 .round-stack-wm {
   position: relative;
   width: 100%;
-  height: 280px;
+  height: 200px;
   overflow: hidden;
   border-radius: 16px;
 }
@@ -696,7 +696,7 @@ nav {
 /* PRESS SECTION */
 .section-press {
   background: var(--neutral-dark);
-  padding: 40px 0;
+  padding: 24px 0;
 }
 .press-inner {
   max-width: 1200px;
@@ -706,8 +706,8 @@ nav {
 .press-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px;
-  margin-top: 24px;
+  gap: 12px;
+  margin-top: 16px;
 }
 
 @media (min-width: 768px) {
@@ -727,10 +727,10 @@ nav {
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 8px;
-  padding: 28px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   transition: background 200ms ease-out;
 }
 .press-card:hover {
@@ -787,7 +787,7 @@ nav {
   display: flex;
   align-items: center;
   overflow: hidden;
-  min-height: 280px;
+  min-height: 200px;
   order: -1;
 }
 .reviews-circle-stack {
@@ -814,7 +814,7 @@ nav {
 }
 .reviews-text-side {
   background: var(--blue-pale);
-  padding: 32px 16px;
+  padding: 20px 16px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -856,29 +856,29 @@ nav {
   font-size: 16px;
   color: var(--neutral-mid);
   line-height: 1.6;
-  margin-bottom: 36px;
+  margin-bottom: 16px;
   max-width: 380px;
 }
 
 /* RATING PLATFORMS */
 .rating-platforms {
   background: #fff;
-  padding: 24px 16px;
+  padding: 12px 16px;
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
   border-top: 1px solid var(--border);
 }
 .platform-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 16px;
-  border-right: none;
-  border-bottom: 1px solid var(--border);
+  gap: 6px;
+  padding: 8px 6px;
+  border-right: 1px solid var(--border);
+  border-bottom: none;
 }
-.platform-item:last-child { border-bottom: none; }
+.platform-item:last-child { border-right: none; }
 
 @media (min-width: 768px) {
   .rating-platforms {
@@ -912,15 +912,15 @@ nav {
 /* FOOTER */
 footer {
   background: var(--neutral-dark);
-  padding: 40px 16px 24px;
+  padding: 24px 16px 16px;
   color: rgba(255,255,255,0.6);
 }
 .footer-inner { max-width: 1200px; margin: 0 auto; }
 .footer-top {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 32px;
-  padding-bottom: 32px;
+  gap: 20px;
+  padding-bottom: 20px;
   border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
@@ -979,21 +979,19 @@ footer {
 /* TRUST BAR */
 .trust-bar {
   background: var(--blue);
-  padding: 16px 16px;
+  padding: 12px 16px;
 }
 .trust-bar-inner {
   max-width: 1200px;
   margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 .trust-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   color: rgba(255,255,255,0.9);
   font-size: 12px;
   font-weight: 700;
@@ -1003,7 +1001,7 @@ footer {
 /* STATS */
 .stats-bar {
   background: #fff;
-  padding: 32px 16px;
+  padding: 16px 16px;
   border-bottom: 1px solid var(--border);
 }
 .stats-inner {
@@ -1011,7 +1009,7 @@ footer {
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: 12px;
 }
 
 @media (min-width: 768px) {
@@ -1037,17 +1035,17 @@ footer {
 }
 .stat-item {
   text-align: center;
-  padding: 24px;
+  padding: 12px 16px;
   border-radius: 8px;
   background: var(--blue-pale);
   border: 1px solid var(--border);
 }
 .stat-num {
-  font-size: 40px;
+  font-size: 28px;
   font-weight: 900;
   color: var(--blue);
   line-height: 1;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 .stat-label {
   font-size: 13px;
@@ -1828,4 +1826,38 @@ footer {
 }
 .breadcrumb a:hover {
   text-decoration: underline;
+}
+
+/* BOOKING SECTION */
+.booking-section {
+  background: var(--blue-pale);
+  padding: 40px 16px;
+}
+.bk-header {
+  padding: 20px 20px;
+}
+.bk-body {
+  padding: 20px 16px;
+}
+.path-selector {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+@media (min-width: 768px) {
+  .booking-section {
+    padding: 80px 40px;
+  }
+  .bk-header {
+    padding: 28px 40px;
+  }
+  .bk-body {
+    padding: 40px;
+  }
+  .path-selector {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
 }

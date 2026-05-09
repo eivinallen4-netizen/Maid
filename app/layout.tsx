@@ -37,8 +37,40 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: "Mountain Springs Cleaning",
+    telephone: "(702) 867-5309",
+    email: "hello@mountainsprings.co",
+    url: "https://mountainspringsclean.com",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Las Vegas",
+      addressRegion: "NV",
+      addressCountry: "US",
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: 36.1699,
+      longitude: -115.1398,
+    },
+    openingHours: ["Mo-Fr 07:00-19:00", "Sa 08:00-17:00"],
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: 4.9,
+      reviewCount: 489,
+    },
+    priceRange: "$$",
+    image: "https://mountainspringsclean.com/logo.png",
+    sameAs: ["https://www.yelp.com/biz/mountain-springs-cleaning"],
+  };
+
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      </head>
       <body className={`${appSans.variable} ${appDisplay.variable} antialiased`} suppressHydrationWarning>
         {children}
       </body>
