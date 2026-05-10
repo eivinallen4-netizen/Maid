@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionFromRequest } from "@/lib/auth";
 import { tursoExecute, tursoBatch, hasTursoConfig } from "@/lib/turso";
+import { sendAdminNotification } from "@/lib/admin-notifications";
 
 export type ContactRecord = {
   id: string;
@@ -161,6 +162,15 @@ export async function POST(request: Request) {
       sql: "INSERT INTO contacts (id, email, created_at, data) VALUES (?, ?, ?, ?)",
       args: [record.id, record.email ?? null, record.created_at, JSON.stringify(record)],
     });
+
+    const contactName = `${record.firstName || ""} ${record.lastName || ""}`.trim() || "New Contact";
+    const serviceType = record.serviceType ? ` (${record.serviceType})` : "";
+
+    await sendAdminNotification(
+      "📋 New Lead Form Submitted",
+      `${contactName}${serviceType} just filled out a service inquiry form`,
+      { contactId: record.id, email: record.email || "", phone: record.phone || "" }
+    );
 
     return NextResponse.json({ contact: record });
   } catch (error) {

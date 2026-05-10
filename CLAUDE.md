@@ -1,3 +1,115 @@
+# Medina: Mountain Springs Cleaning Platform
+
+**Project:** Next.js booking & management platform for Mountain Springs Cleaning, Las Vegas  
+**Client:** Mountain Springs Cleaning / Medina  
+**Status:** Active development  
+
+---
+
+## Project Overview
+
+Medina is a customer-facing and operations platform that allows residents to book cleaning services, manage preferences, and track jobs. Key features:
+- Online booking with real-time availability
+- Customer account management (address, preferences, payment info)
+- Payment processing (Stripe integration)
+- Push notifications (OneSignal)
+- QR code generation for entry coordination
+- Email notifications (Nodemailer)
+- Team/job management backend
+- Database: Turso (LibSQL) for customer & job data, S3 for file storage
+
+---
+
+## Tech Stack
+
+- **Framework:** Next.js 16.2.4 (React 19.2.4, TypeScript)
+- **Styling:** Tailwind CSS 4 + Radix UI components
+- **Database:** Turso (LibSQL) — `@libsql/client`
+- **Storage:** AWS S3 — `@aws-sdk/client-s3`
+- **Payments:** Stripe API — `stripe` npm package
+- **Email:** Nodemailer — `nodemailer`
+- **Push notifications:** OneSignal — `react-onesignal`
+- **QR codes:** qrcode — `qrcode`
+- **Linting:** ESLint 9
+
+---
+
+## Development
+
+### Getting Started
+```bash
+npm run dev          # Run dev server (includes QR code generation)
+npm run build        # Build for production
+npm run start        # Start production server
+npm lint             # Run ESLint
+```
+
+Dev server runs on `http://localhost:3000` with hot reload.
+
+### Environment Variables (required)
+Document in `.env.local` if needed:
+- Stripe keys (public & secret)
+- Turso database URL & token
+- AWS S3 credentials & region
+- OneSignal app ID
+- Nodemailer SMTP config (Gmail or other)
+- QR code generation settings
+
+### Key Directories
+- `app/` — Next.js app router (pages, API routes, layouts)
+- `components/` — Reusable React components (buttons, forms, etc.)
+- `lib/` — Utilities, database clients, Stripe helpers
+- `scripts/` — QR code generation script (runs on `npm run dev`)
+- `public/` — Static assets
+
+---
+
+## Database (Turso/LibSQL)
+
+- Connection: `@libsql/client` to Turso
+- Recent migration: app-config and contacts-store moved to Turso (commit a847cb5)
+- Schema likely includes: users, bookings, preferences, team, payments, etc.
+- **To update schema:** check existing migrations or ask owner for current DDL
+
+---
+
+## Integration Points
+
+- **Stripe:** Payment processing, stored customer payment methods
+- **AWS S3:** Before/after photos, team photos, documents
+- **OneSignal:** Push notifications for booking confirmations, reminders, team updates
+- **Nodemailer:** Booking confirmations, receipts, password resets
+- **QR codes:** Entry coordination — generates codes for door access
+
+---
+
+## Design System
+
+- **UI Library:** Radix UI (unstyled, accessible components)
+- **Styling:** Tailwind CSS utilities + `class-variance-authority` for component variants
+- **Icons:** Lucide React
+- **Utilities:** `clsx` for conditional class merging, `tailwind-merge` for Tailwind utilities
+
+---
+
+## Deployment
+
+- Likely Vercel (standard Next.js hosting) — check Vercel settings
+- Environment variables synced to deployment platform
+- Build command: `next build`
+
+---
+
+## Known Constraints & TODOs
+
+- Mobile-first design required (Las Vegas audience is mobile-heavy)
+- QR code feature ties to entry coordination — ensure it works in low-signal areas
+- Stripe integration must handle recurring charges (weekly/biweekly cleaning plans)
+- OneSignal push timing: consider Vegas shift worker hours (24/7 market)
+- Turso connection reliability is critical for bookings — monitor latency
+
+---
+
 @AGENTS.md
 # Audience Research: Maid Cleaning Service — Las Vegas Customers
 *For Mountain Springs Cleaning*

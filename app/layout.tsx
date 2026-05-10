@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bebas_Neue, Manrope } from "next/font/google";
 import "./globals.css";
+import { OneSignalProvider } from "./OneSignalProvider";
 
 const appSans = Manrope({
   subsets: ["latin"],
@@ -84,7 +85,7 @@ export default function RootLayout({
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </head>
       <body className={`${appSans.variable} ${appDisplay.variable} antialiased`} suppressHydrationWarning>
-        {children}
+        <OneSignalProvider>{children}</OneSignalProvider>
       </body>
     </html>
   );

@@ -4,6 +4,7 @@ import { sendEmail } from "@/lib/email";
 import { findJobByStripeSessionId } from "@/lib/jobs";
 import { syncJobFromCheckoutSession } from "@/lib/stripe-job-sync";
 import { upsertTransaction } from "@/lib/transactions";
+import { sendAdminNotification } from "@/lib/admin-notifications";
 
 export const runtime = "nodejs";
 
@@ -226,6 +227,15 @@ export async function POST(request: Request) {
           created_at: job?.created_at ?? new Date().toISOString(),
           authorized_at: new Date().toISOString(),
         });
+
+        const repName = session.metadata?.rep_name || session.metadata?.rep_email || "A rep";
+        const transactionAmount = typeof session.amount_total === "number" ? formatCurrency(session.amount_total / 100) : "Payment";
+
+        await sendAdminNotification(
+          "💰 New Purchase Authorized",
+          `${repName} made a sale for ${transactionAmount}`,
+          { sessionId: session.id, repEmail: session.metadata?.rep_email || "" }
+        );
       } catch (jobError) {
         console.error("Failed to record job.", jobError);
       }

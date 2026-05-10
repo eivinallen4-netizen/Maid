@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSessionToken, hashPin, SESSION_TTL_SECONDS } from "@/lib/auth";
 import { findUserByEmail, findUserByInviteToken, getUserInviteStatus, readUsers, writeUsers } from "@/lib/users";
+import { sendAdminNotification } from "@/lib/admin-notifications";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -114,6 +115,12 @@ export async function POST(request: Request) {
     user.invite_token_hash = undefined;
 
     await writeUsers(users);
+
+    await sendAdminNotification(
+      "🎉 New Signup Complete",
+      `${user.name} (${email}) just completed their profile and is ready to go!`,
+      { userId: user.id, email, name: user.name }
+    );
 
     const sessionToken = await createSessionToken({
       userId: user.id,
