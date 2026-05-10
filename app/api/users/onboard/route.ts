@@ -69,20 +69,20 @@ export async function POST(request: Request) {
     };
 
     const token = body.token?.trim();
+    const name = body.name?.trim();
     const email = body.email?.trim().toLowerCase();
     const birthday = body.birthday?.trim();
     const phone = body.phone?.trim();
     const pin = body.pin?.trim();
-    const name = body.name?.trim();
 
     if (!token) {
       return NextResponse.json({ error: "Invite token is required." }, { status: 400 });
     }
-    if (!email || !isValidEmail(email)) {
-      return NextResponse.json({ error: "Valid email is required." }, { status: 400 });
-    }
     if (!name) {
       return NextResponse.json({ error: "Name is required." }, { status: 400 });
+    }
+    if (!email || !isValidEmail(email)) {
+      return NextResponse.json({ error: "Valid email is required." }, { status: 400 });
     }
     if (!birthday || !isValidBirthday(birthday)) {
       return NextResponse.json({ error: "Birthday must be YYYY-MM-DD." }, { status: 400 });
