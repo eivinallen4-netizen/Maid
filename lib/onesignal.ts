@@ -2,7 +2,7 @@ import OneSignal from "react-onesignal";
 
 export async function getSubscriptionStatus() {
   try {
-    const isSubscribed = await OneSignal.User.pushSubscription.getOptedIn();
+    const isSubscribed = OneSignal.User.PushSubscription.optedIn;
     return isSubscribed;
   } catch (error) {
     console.error("Failed to get subscription status:", error);
@@ -12,7 +12,7 @@ export async function getSubscriptionStatus() {
 
 export async function setSubscriptionStatus(opted: boolean) {
   try {
-    OneSignal.User.pushSubscription.optIn();
+    OneSignal.User.PushSubscription.optIn();
   } catch (error) {
     console.error("Failed to set subscription status:", error);
   }
@@ -28,7 +28,9 @@ export async function sendTag(key: string, value: string) {
 
 export async function removeTags(keys: string[]) {
   try {
-    OneSignal.User.deleteTags(keys);
+    for (const key of keys) {
+      OneSignal.User.removeTag(key);
+    }
   } catch (error) {
     console.error("Failed to remove tags:", error);
   }
