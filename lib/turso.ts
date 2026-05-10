@@ -118,12 +118,58 @@ async function ensureSchema() {
         await db.execute("DROP TABLE users_legacy");
       }
 
+      const contactsInfo = await db.execute("PRAGMA table_info(contacts)");
+      const contactsHasEmailNotNull = contactsInfo.rows.some(
+        (row) => String(row.name) === "email" && String(row.notnull) === "1"
+      );
+
+      if (contactsInfo.rows.length > 0 && contactsHasEmailNotNull) {
+        const existingContacts = await db.execute("SELECT data FROM contacts");
+
+        await db.batch(
+          [
+            { sql: "ALTER TABLE contacts RENAME TO contacts_legacy", args: [] },
+            {
+              sql: `
+                CREATE TABLE contacts (
+                  id TEXT PRIMARY KEY,
+                  email TEXT UNIQUE,
+                  created_at TEXT,
+                  data TEXT NOT NULL
+                )
+              `,
+              args: [],
+            },
+          ],
+          "write"
+        );
+
+        for (const row of existingContacts.rows) {
+          try {
+            const contact = JSON.parse(String(row.data)) as Record<string, unknown>;
+            await db.execute({
+              sql: "INSERT INTO contacts (id, email, created_at, data) VALUES (?, ?, ?, ?)",
+              args: [
+                String(contact.id),
+                (contact.email ? String(contact.email) : null) as string | null,
+                String(contact.created_at),
+                JSON.stringify(contact),
+              ],
+            });
+          } catch {
+            // Ignore malformed contact rows during migration
+          }
+        }
+
+        await db.execute("DROP TABLE contacts_legacy");
+      }
+
       const createTableStatements = [
         `CREATE TABLE IF NOT EXISTS app_config (id INTEGER PRIMARY KEY CHECK (id = 1), data TEXT NOT NULL)`,
         `CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, email TEXT UNIQUE, created_at TEXT, data TEXT NOT NULL)`,
         `CREATE TABLE IF NOT EXISTS jobs (id TEXT PRIMARY KEY, stripe_session_id TEXT UNIQUE, payment_intent_id TEXT UNIQUE, created_at TEXT, data TEXT NOT NULL)`,
         `CREATE TABLE IF NOT EXISTS transactions (id TEXT PRIMARY KEY, transaction_key TEXT NOT NULL UNIQUE, payment_intent_id TEXT, stripe_session_id TEXT, job_id TEXT, created_at TEXT, updated_at TEXT, data TEXT NOT NULL)`,
-        `CREATE TABLE IF NOT EXISTS contacts (id TEXT PRIMARY KEY, email TEXT NOT NULL UNIQUE, created_at TEXT, data TEXT NOT NULL)`,
+        `CREATE TABLE IF NOT EXISTS contacts (id TEXT PRIMARY KEY, email TEXT UNIQUE, created_at TEXT, data TEXT NOT NULL)`,
         `CREATE TABLE IF NOT EXISTS schedules (week_start TEXT PRIMARY KEY, updated_at TEXT, data TEXT NOT NULL)`,
         `CREATE TABLE IF NOT EXISTS quotes (id TEXT PRIMARY KEY, created_at TEXT, data TEXT NOT NULL)`,
         `CREATE TABLE IF NOT EXISTS bookings (session_id TEXT PRIMARY KEY, created_at TEXT, data TEXT NOT NULL)`,

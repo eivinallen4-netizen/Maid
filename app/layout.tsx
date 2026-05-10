@@ -37,6 +37,10 @@ export const metadata: Metadata = {
     "Airbnb cleaning Las Vegas",
     "move-out cleaning Las Vegas",
   ],
+  icons: {
+    icon: "/logo.ico",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({
